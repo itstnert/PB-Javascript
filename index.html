@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smite Draft Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="blue-side-label">Blue Side</div>
+        <div class="red-side-label">Red Side</div>
+        <div class="logo-container">
+            <img src="Smite Icons/Trent.png" alt="Logo" class="logo">
+            <div class="made-by">Made by @TrentUDK</div>
+        </div>
+    </div>
+    <div class="bans-container">
+        <div class="bans blue">
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="spacer-horizontal"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+        </div>
+        <div class="bans red">
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="spacer-horizontal"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="side-container blue-side">
+            <div class="picks blue">
+                <div class="pick-label">B1</div>
+                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">B2</div>
+                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">B3</div>
+                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="spacer-vertical"></div>
+                <div class="pick-label">B4</div>
+                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">B5</div>
+                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            </div>
+        </div>
+        <div class="middle-section">
+            <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()">
+            <div id="character-list" class="scroll-container"></div>
+            <button class="clear-button" onclick="clearDraft()">Clear Draft</button>
+        </div>
+        <div class="side-container red-side">
+            <div class="picks red">
+                <div class="pick-label">R1</div>
+                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">R2</div>
+                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">R3</div>
+                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="spacer-vertical"></div>
+                <div class="pick-label">R4</div>
+                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-label">R5</div>
+                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
