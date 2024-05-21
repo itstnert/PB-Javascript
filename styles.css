@@ -49,13 +49,52 @@ body {
 }
 
 .logo {
-    width: 75px; /* 1/4 of 50px */
-    height: 75px; /* 1/4 of 50px */
+    width: 75px;
+    height: 75px;
 }
 
 .made-by {
     margin-top: 10px;
-    font-size: 15px; /* 1/4 of 12px */
+    font-size: 15px;
+}
+
+.timer-container {
+    position: absolute;
+    left: 10px;
+    top: 100px; /* Adjusted to place below header */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #1a202c;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.timer-button {
+    padding: 15px 30px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.timer-button:hover {
+    background-color: #2b6cb0;
+    transform: scale(1.05);
+}
+
+.timer-display {
+    font-size: 32px;
+    background-color: #2d3748;
+    color: #ffffff;
+    padding: 15px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .bans-container {
@@ -63,21 +102,21 @@ body {
     justify-content: center;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .bans {
     display: flex;
     align-items: center;
-    justify-content: center; /* Center the bans horizontally */
+    justify-content: center;
 }
 
 .bans.blue {
-    margin-right: 40px; /* Adjust this value to bring bans closer */
+    margin-right: 20px;
 }
 
 .bans.red {
-    margin-left: 40px; /* Adjust this value to bring bans closer */
+    margin-left: 20px;
 }
 
 .main-content {
@@ -86,22 +125,22 @@ body {
     padding: 20px;
     box-sizing: border-box;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 0;
 }
 
 .side-container {
     display: flex;
     flex-direction: column;
     width: 20%;
-    align-items: center; /* Center the side container contents */
-    margin-bottom: -40px; /* Raise the side container to make the bottom picks visible */
+    align-items: center;
+    margin-bottom: -50px;
 }
 
 .middle-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 50%;
+    width: 40%;
 }
 
 .picks.blue, .picks.red {
@@ -119,8 +158,8 @@ body {
 }
 
 .ban-slot, .pick-slot {
-    width: 100px; /* Increased size */
-    height: 100px; /* Increased size */
+    width: 100px;
+    height: 100px;
     margin: 10px;
     display: flex;
     justify-content: center;
@@ -130,29 +169,31 @@ body {
 }
 
 .ban-slot {
-    background-color: #444c56; /* Grey background for ban slots */
+    background-color: #444c56;
+    width: 75px;
+    height: 75px;
 }
 
 .pick-slot {
     flex-direction: column;
-    top: -10px; /* Raise each pick slot by 10 pixels */
+    top: -10px;
 }
 
 .pick-slot.blue-slot {
-    background-color: #2c5282; /* Dark blue background for blue side pick slots */
+    background-color: #2c5282;
 }
 
 .pick-slot.red-slot {
-    background-color: #742a2a; /* Dark red background for red side pick slots */
+    background-color: #742a2a;
 }
 
 .ban-slot img, .pick-slot img {
-    border: none; /* Remove border around character's icon */
+    border: none;
 }
 
 .character-image {
-    width: 100px; /* Increased size */
-    height: 100px; /* Increased size */
+    width: 100px;
+    height: 100px;
     box-shadow: 0 2px px rgba(0,0,0,0.25);
     transition: transform 0.3s;
     cursor: pointer;
@@ -167,9 +208,14 @@ body {
     transform: scale(1.15);
 }
 
+.character-image.resized {
+    width: 75px;
+    height: 75px;
+}
+
 .character-name {
     font-family: 'Corbel', serif;
-    font-size: 18px; /* Increased size */
+    font-size: 18px;
     margin-top: 3px;
     text-align: center;
 }
@@ -205,15 +251,29 @@ body {
 }
 
 .scroll-container .character-card {
-    width: calc(100% / 7 - 10px); /* Ensure 7 characters per line with space between */
-    margin: 5px;
+    width: calc(100% / 7 - 10px);
+    margin: 10px; /* Increased margin */
 }
 
 #searchBox {
-    width: 90%;
+    width: 60%;
     padding: 10px;
     margin-bottom: 20px;
     border: 2px solid #ccc;
     border-radius: 8px;
+    font-size: 16px;
+}
+
+.rename-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.rename-input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
     font-size: 16px;
 }

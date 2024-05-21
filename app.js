@@ -131,6 +131,9 @@ const characters = [
     { name: "Zhong Kui", image: "Smite Icons/Zhong_Kui.png" }
 ];
 
+let timer;
+let timeLeft = 25; // Set default timer value to 25 seconds
+
 function loadCharacters() {
     const characterArea = document.getElementById('character-list');
     characterArea.innerHTML = '';
@@ -191,6 +194,7 @@ function dropPick(event) {
     if (event.target.className.includes('pick-slot') && event.target.children.length === 0) {
         event.target.appendChild(createClonedElement(id));
         greyOutCharacter(id);
+        resetTimer();
     }
 }
 
@@ -200,8 +204,11 @@ function dropBan(event) {
     const id = event.dataTransfer.getData("text");
 
     if (event.target.className.includes('ban-slot') && event.target.children.length === 0) {
-        event.target.appendChild(createClonedElement(id));
+        const clonedElement = createClonedElement(id);
+        clonedElement.classList.add('resized');
+        event.target.appendChild(clonedElement);
         greyOutCharacter(id, true);
+        resetTimer();
     }
 }
 
@@ -247,6 +254,43 @@ function clearDraft() {
     document.querySelectorAll('.character-image.greyed-out').forEach(image => {
         image.classList.remove('greyed-out');
     });
+    resetAndStopTimer();
+}
+
+function renameSide(side) {
+    if (side === 'blue') {
+        const newName = document.getElementById('blueSideInput').value;
+        document.getElementById('blueSideLabel').innerText = newName || 'Blue Side';
+    } else if (side === 'red') {
+        const newName = document.getElementById('redSideInput').value;
+        document.getElementById('redSideLabel').innerText = newName || 'Red Side';
+    }
+}
+
+function startTimer() {
+    clearInterval(timer);
+    timeLeft = 25; // Start timer at 25 seconds
+    document.getElementById('timerDisplay').innerText = timeLeft;
+    timer = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            alert("Pick/Ban Dropped");
+        } else {
+            timeLeft--;
+            document.getElementById('timerDisplay').innerText = timeLeft;
+        }
+    }, 1000);
+}
+
+function resetTimer() {
+    timeLeft = 25;
+    document.getElementById('timerDisplay').innerText = timeLeft;
+}
+
+function resetAndStopTimer() {
+    clearInterval(timer);
+    timeLeft = 25;
+    document.getElementById('timerDisplay').innerText = timeLeft;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
