@@ -1,138 +1,139 @@
 const characters = [
-    { name: "Achilles", image: "Smite Icons/Achilles.png" },
-    { name: "Agni", image: "Smite Icons/Agni.png" },
-    { name: "Ah Muzen Cab", image: "Smite Icons/Ah_Muzen_Cab.png" },
-    { name: "Ah Puch", image: "Smite Icons/Ah_Puch.png" },
-    { name: "Amaterasu", image: "Smite Icons/Amaterasu.png" },
-    { name: "Anhur", image: "Smite Icons/Anhur.png" },
-    { name: "Anubis", image: "Smite Icons/Anubis.png" },
-    { name: "Ao Kuang", image: "Smite Icons/Ao_Kuang.png" },
-    { name: "Aphrodite", image: "Smite Icons/Aphrodite.png" },
-    { name: "Apollo", image: "Smite Icons/Apollo.png" },
-    { name: "Arachne", image: "Smite Icons/Arachne.png" },
-    { name: "Ares", image: "Smite Icons/Ares.png" },
-    { name: "Artemis", image: "Smite Icons/Artemis.png" },
-    { name: "Artio", image: "Smite Icons/Artio.png" },
-    { name: "Athena", image: "Smite Icons/Athena.png" },
-    { name: "Atlas", image: "Smite Icons/Atlas.png" },
-    { name: "Awilix", image: "Smite Icons/Awilix.png" },
-    { name: "Baba Yaga", image: "Smite Icons/Baba_Yaga.png" },
-    { name: "Bacchus", image: "Smite Icons/Bacchus.png" },
-    { name: "Bake Kujira", image: "Smite Icons/Bake_Kujira.png" },
-    { name: "Bakasura", image: "Smite Icons/Bakasura.png" },
-    { name: "Baron Samedi", image: "Smite Icons/Baron_Samedi.png" },
-    { name: "Bastet", image: "Smite Icons/Bastet.png" },
-    { name: "Bellona", image: "Smite Icons/Bellona.png" },
-    { name: "Cabrakan", image: "Smite Icons/Cabrakan.png" },
-    { name: "Camazotz", image: "Smite Icons/Camazotz.png" },
-    { name: "Cerberus", image: "Smite Icons/Cerberus.png" },
-    { name: "Cernunnos", image: "Smite Icons/Cernunnos.png" },
-    { name: "Chaac", image: "Smite Icons/Chaac.png" },
-    { name: "Chang'e", image: "Smite Icons/Change.png" },
-    { name: "Charon", image: "Smite Icons/Charon.png" },
-    { name: "Charybdis", image: "Smite Icons/Charybdis.png" },
-    { name: "Chernobog", image: "Smite Icons/Chernobog.png" },
-    { name: "Chiron", image: "Smite Icons/Chiron.png" },
-    { name: "Chronos", image: "Smite Icons/Chronos.png" },
-    { name: "Cliodhna", image: "Smite Icons/Cliodhna.png" },
-    { name: "Cthulhu", image: "Smite Icons/Cthulhu.png" },
-    { name: "Cu Chulainn", image: "Smite Icons/Cu_Chulainn.png" },
-    { name: "Cupid", image: "Smite Icons/Cupid.png" },
-    { name: "Da Ji", image: "Smite Icons/Da_Ji.png" },
-    { name: "Danzaburou", image: "Smite Icons/Danzaburou.png" },
-    { name: "Discordia", image: "Smite Icons/Discordia.png" },
-    { name: "Erlang Shen", image: "Smite Icons/Erlang_Shen.png" },
-    { name: "Eset", image: "Smite Icons/Eset.png" },
-    { name: "Fafnir", image: "Smite Icons/Fafnir.png" },
-    { name: "Fenrir", image: "Smite Icons/Fenrir.png" },
-    { name: "Freya", image: "Smite Icons/Freya.png" },
-    { name: "Ganesha", image: "Smite Icons/Ganesha.png" },
-    { name: "Geb", image: "Smite Icons/Geb.png" },
-    { name: "Gilgamesh", image: "Smite Icons/Gilgamesh.png" },
-    { name: "Guan Yu", image: "Smite Icons/Guan_Yu.png" },
-    { name: "Hachiman", image: "Smite Icons/Hachiman.png" },
-    { name: "Hades", image: "Smite Icons/Hades.png" },
-    { name: "He Bo", image: "Smite Icons/He_Bo.png" },
-    { name: "Heimdallr", image: "Smite Icons/Heimdallr.png" },
-    { name: "Hel", image: "Smite Icons/Hel.png" },
-    { name: "Hera", image: "Smite Icons/Hera.png" },
-    { name: "Hercules", image: "Smite Icons/Hercules.png" },
-    { name: "Horus", image: "Smite Icons/Horus.png" },
-    { name: "Hou Yi", image: "Smite Icons/Hou_Yi.png" },
-    { name: "Hun Batz", image: "Smite Icons/Hun_Batz.png" },
-    { name: "Ishtar", image: "Smite Icons/Ishtar.png" },
-    { name: "Ix Chel", image: "Smite Icons/Ix_Chel.png" },
-    { name: "Izanami", image: "Smite Icons/Izanami.png" },
-    { name: "Janus", image: "Smite Icons/Janus.png" },
-    { name: "Jing Wei", image: "Smite Icons/Jing_Wei.png" },
-    { name: "Jormungandr", image: "Smite Icons/Jormungandr.png" },
-    { name: "Kali", image: "Smite Icons/Kali.png" },
-    { name: "Khepri", image: "Smite Icons/Khepri.png" },
-    { name: "King Arthur", image: "Smite Icons/King_Arthur.png" },
-    { name: "Kukulkan", image: "Smite Icons/Kukulkan.png" },
-    { name: "Kumbhakarna", image: "Smite Icons/Kumbhakarna.png" },
-    { name: "Kuzenbo", image: "Smite Icons/Kuzenbo.png" },
-    { name: "Lancelot", image: "Smite Icons/Lancelot.png" },
-    { name: "Loki", image: "Smite Icons/Loki.png" },
-    { name: "Maman Brigitte", image: "Smite Icons/Maman_Brigitte.png" },
-    { name: "Martichoras", image: "Smite Icons/Martichoras.png" },
-    { name: "Maui", image: "Smite Icons/Maui.png" },
-    { name: "Medusa", image: "Smite Icons/Medusa.png" },
-    { name: "Mercury", image: "Smite Icons/Mercury.png" },
-    { name: "Merlin", image: "Smite Icons/Merlin.png" },
-    { name: "Morgan Le Fay", image: "Smite Icons/Morgan_Le_Fay.png" },
-    { name: "Mulan", image: "Smite Icons/Mulan.png" },
-    { name: "Ne Zha", image: "Smite Icons/Ne_Zha.png" },
-    { name: "Neith", image: "Smite Icons/Neith.png" },
-    { name: "Nemesis", image: "Smite Icons/Nemesis.png" },
-    { name: "Nike", image: "Smite Icons/Nike.png" },
-    { name: "Nox", image: "Smite Icons/Nox.png" },
-    { name: "Nut", image: "Smite Icons/Nut.png" },
-    { name: "Nu Wa", image: "Smite Icons/Nu_Wa.png" },
-    { name: "Odin", image: "Smite Icons/Odin.png" },
-    { name: "Olorun", image: "Smite Icons/Olorun.png" },
-    { name: "Osiris", image: "Smite Icons/Osiris.png" },
-    { name: "Pele", image: "Smite Icons/Pele.png" },
-    { name: "Persephone", image: "Smite Icons/Persephone.png" },
-    { name: "Poseidon", image: "Smite Icons/Poseidon.png" },
-    { name: "Ra", image: "Smite Icons/Ra.png" },
-    { name: "Raijin", image: "Smite Icons/Raijin.png" },
-    { name: "Rama", image: "Smite Icons/Rama.png" },
-    { name: "Ratatoskr", image: "Smite Icons/Ratatoskr.png" },
-    { name: "Ravana", image: "Smite Icons/Ravana.png" },
-    { name: "Scylla", image: "Smite Icons/Scylla.png" },
-    { name: "Serqet", image: "Smite Icons/Serqet.png" },
-    { name: "Set", image: "Smite Icons/Set.png" },
-    { name: "Shiva", image: "Smite Icons/Shiva.png" },
-    { name: "Skadi", image: "Smite Icons/Skadi.png" },
-    { name: "Sobek", image: "Smite Icons/Sobek.png" },
-    { name: "Sol", image: "Smite Icons/Sol.png" },
-    { name: "Sun Wukong", image: "Smite Icons/Sun_Wukong.png" },
-    { name: "Surtr", image: "Smite Icons/Surtr.png" },
-    { name: "Susano", image: "Smite Icons/Susano.png" },
-    { name: "Sylvanus", image: "Smite Icons/Sylvanus.png" },
-    { name: "Terra", image: "Smite Icons/Terra.png" },
-    { name: "Thanatos", image: "Smite Icons/Thanatos.png" },
-    { name: "The Morrigan", image: "Smite Icons/The_Morrigan.png" },
-    { name: "Thor", image: "Smite Icons/Thor.png" },
-    { name: "Thoth", image: "Smite Icons/Thoth.png" },
-    { name: "Tiamat", image: "Smite Icons/Tiamat.png" },
-    { name: "Tsukuyomi", image: "Smite Icons/Tsukuyomi.png" },
-    { name: "Tyr", image: "Smite Icons/Tyr.png" },
-    { name: "Ullr", image: "Smite Icons/Ullr.png" },
-    { name: "Vamana", image: "Smite Icons/Vamana.png" },
-    { name: "Vulcan", image: "Smite Icons/Vulcan.png" },
-    { name: "Xbalanque", image: "Smite Icons/Xbalanque.png" },
-    { name: "Xing Tian", image: "Smite Icons/Xing_Tian.png" },
-    { name: "Yemoja", image: "Smite Icons/Yemoja.png" },
-    { name: "Ymir", image: "Smite Icons/Ymir.png" },
-    { name: "Yu Huang", image: "Smite Icons/Yu_Huang.png" },
-    { name: "Zeus", image: "Smite Icons/Zeus.png" },
-    { name: "Zhong Kui", image: "Smite Icons/Zhong_Kui.png" }
+    { name: "Achilles", image: "Smite Icons/Achilles.png", roles: ["Solo", "Jungle"] },
+    { name: "Agni", image: "Smite Icons/Agni.png", roles: ["Mid"] },
+    { name: "Ah Muzen Cab", image: "Smite Icons/Ah_Muzen_Cab.png", roles: ["Mid", "Carry"] },
+    { name: "Ah Puch", image: "Smite Icons/Ah_Puch.png", roles: ["Mid"]  },
+    { name: "Amaterasu", image: "Smite Icons/Amaterasu.png", roles: ["Solo"]  },
+    { name: "Anhur", image: "Smite Icons/Anhur.png", roles: ["Carry"]  },
+    { name: "Anubis", image: "Smite Icons/Anubis.png", roles: ["Mid"]  },
+    { name: "Ao Kuang", image: "Smite Icons/Ao_Kuang.png", roles: ["Jungle"]  },
+    { name: "Aphrodite", image: "Smite Icons/Aphrodite.png", roles: ["Support"]  },
+    { name: "Apollo", image: "Smite Icons/Apollo.png", roles: ["Carry"]  },
+    { name: "Arachne", image: "Smite Icons/Arachne.png", roles: ["Jungle"]  },
+    { name: "Ares", image: "Smite Icons/Ares.png", roles: ["Support"]  },
+    { name: "Artemis", image: "Smite Icons/Artemis.png", roles: ["Carry"]  },
+    { name: "Artio", image: "Smite Icons/Artio.png", roles: ["Solo", "Support"]  },
+    { name: "Athena", image: "Smite Icons/Athena.png", roles: ["Support"]  },
+    { name: "Atlas", image: "Smite Icons/Atlas.png", roles: ["Support"]  },
+    { name: "Awilix", image: "Smite Icons/Awilix.png", roles: ["Jungle"]  },
+    { name: "Baba Yaga", image: "Smite Icons/Baba_Yaga.png", roles: ["Mid"]  },
+    { name: "Bacchus", image: "Smite Icons/Bacchus.png", roles: ["Support"]  },
+    { name: "Bake Kujira", image: "Smite Icons/Bake_Kujira.png", roles: ["Solo"]  },
+    { name: "Bakasura", image: "Smite Icons/Bakasura.png", roles: ["Jungle"]  },
+    { name: "Baron Samedi", image: "Smite Icons/Baron_Samedi.png", roles: ["Support", "Mid", "Solo"]  },
+    { name: "Bastet", image: "Smite Icons/Bastet.png", roles: ["Jungle"]  },
+    { name: "Bellona", image: "Smite Icons/Bellona.png", roles: ["Solo"]  },
+    { name: "Cabrakan", image: "Smite Icons/Cabrakan.png", roles: ["Support", "Jungle"]  },
+    { name: "Camazotz", image: "Smite Icons/Camazotz.png", roles: ["Jungle", "Solo"]  },
+    { name: "Cerberus", image: "Smite Icons/Cerberus.png", roles: ["Solo", "Support"]  },
+    { name: "Cernunnos", image: "Smite Icons/Cernunnos.png", roles: ["Carry"]  },
+    { name: "Chaac", image: "Smite Icons/Chaac.png", roles: ["Solo"]  },
+    { name: "Chang'e", image: "Smite Icons/Change.png", roles: ["Mid", "Solo"]  },
+    { name: "Charon", image: "Smite Icons/Charon.png", roles: ["Support"]  },
+    { name: "Charybdis", image: "Smite Icons/Charybdis.png", roles: ["Carry"]  },
+    { name: "Chernobog", image: "Smite Icons/Chernobog.png", roles: ["Carry"]  },
+    { name: "Chiron", image: "Smite Icons/Chiron.png", roles: ["Carry", "Mid"]  },
+    { name: "Chronos", image: "Smite Icons/Chronos.png", roles: ["Carry", "Mid"]  },
+    { name: "Cliodhna", image: "Smite Icons/Cliodhna.png", roles: ["Jungle", "Solo"]  },
+    { name: "Cthulhu", image: "Smite Icons/Cthulhu.png", roles: ["Solo"]  },
+    { name: "Cu Chulainn", image: "Smite Icons/Cu_Chulainn.png", roles: ["Solo"]  },
+    { name: "Cupid", image: "Smite Icons/Cupid.png", roles: ["Carry"]  },
+    { name: "Da Ji", image: "Smite Icons/Da_Ji.png", roles: ["Jungle"]  },
+    { name: "Danzaburou", image: "Smite Icons/Danzaburou.png", roles: ["Carry"]  },
+    { name: "Discordia", image: "Smite Icons/Discordia.png", roles: ["Mid"]  },
+    { name: "Erlang Shen", image: "Smite Icons/Erlang_Shen.png", roles: ["Jungle"]   },
+    { name: "Eset", image: "Smite Icons/Eset.png", roles: ["Support", "Mid"]   },
+    { name: "Fafnir", image: "Smite Icons/Fafnir.png", roles: ["Support"]   },
+    { name: "Fenrir", image: "Smite Icons/Fenrir.png", roles: ["Jungle"]   },
+    { name: "Freya", image: "Smite Icons/Freya.png", roles: ["Carry"]   },
+    { name: "Ganesha", image: "Smite Icons/Ganesha.png", roles: ["Support"]   },
+    { name: "Geb", image: "Smite Icons/Geb.png", roles: ["Support"]   },
+    { name: "Gilgamesh", image: "Smite Icons/Gilgamesh.png", roles: ["Jungle", "Solo"]   },
+    { name: "Guan Yu", image: "Smite Icons/Guan_Yu.png", roles: ["Solo"]   },
+    { name: "Hachiman", image: "Smite Icons/Hachiman.png", roles: ["Carry"]   },
+    { name: "Hades", image: "Smite Icons/Hades.png", roles: ["Solo"]   },
+    { name: "He Bo", image: "Smite Icons/He_Bo.png", roles: ["Jungle", "Mid"]   },
+    { name: "Heimdallr", image: "Smite Icons/Heimdallr.png", roles: ["Carry"]   },
+    { name: "Hel", image: "Smite Icons/Hel.png", roles: ["Mid", "Support"]   },
+    { name: "Hera", image: "Smite Icons/Hera.png", roles: ["Mid"]   },
+    { name: "Hercules", image: "Smite Icons/Hercules.png", roles: ["Solo"]   },
+    { name: "Horus", image: "Smite Icons/Horus.png", roles: ["Support", "Solo"]   },
+    { name: "Hou Yi", image: "Smite Icons/Hou_Yi.png", roles: ["Carry"]   },
+    { name: "Hun Batz", image: "Smite Icons/Hun_Batz.png", roles: ["Jungle"]   },
+    { name: "Ishtar", image: "Smite Icons/Ishtar.png", roles: ["Carry"]   },
+    { name: "Ix Chel", image: "Smite Icons/Ix_Chel.png", roles: ["Mid", "Support"]   },
+    { name: "Izanami", image: "Smite Icons/Izanami.png", roles: ["Carry"]   },
+    { name: "Janus", image: "Smite Icons/Janus.png", roles: ["Mid"]   },
+    { name: "Jing Wei", image: "Smite Icons/Jing_Wei.png", roles: ["Carry"]   },
+    { name: "Jormungandr", image: "Smite Icons/Jormungandr.png", roles: ["Solo"]   },
+    { name: "Kali", image: "Smite Icons/Kali.png", roles: ["Jungle"]   },
+    { name: "Khepri", image: "Smite Icons/Khepri.png", roles: ["Support"]   },
+    { name: "King Arthur", image: "Smite Icons/King_Arthur.png", roles: ["Solo"]   },
+    { name: "Kukulkan", image: "Smite Icons/Kukulkan.png", roles: ["Mid"]   },
+    { name: "Kumbhakarna", image: "Smite Icons/Kumbhakarna.png", roles: ["Support"]   },
+    { name: "Kuzenbo", image: "Smite Icons/Kuzenbo.png", roles: ["Support", "Solo"]   },
+    { name: "Lancelot", image: "Smite Icons/Lancelot.png", roles: ["Jungle"]    },
+    { name: "Loki", image: "Smite Icons/Loki.png", roles: ["Jungle"]    },
+    { name: "Maman Brigitte", image: "Smite Icons/Maman_Brigitte.png", roles: ["Jungle"]    },
+    { name: "Martichoras", image: "Smite Icons/Martichoras.png", roles: ["Mid", "Carry"]    },
+    { name: "Maui", image: "Smite Icons/Maui.png", roles: ["Support"]    },
+    { name: "Medusa", image: "Smite Icons/Medusa.png", roles: ["Carry"]    },
+    { name: "Mercury", image: "Smite Icons/Mercury.png", roles: ["Jungle"]    },
+    { name: "Merlin", image: "Smite Icons/Merlin.png", roles: ["Mid"]    },
+    { name: "Morgan Le Fay", image: "Smite Icons/Morgan_Le_Fay.png", roles: ["Mid"]    },
+    { name: "Mulan", image: "Smite Icons/Mulan.png", roles: ["Solo"]    },
+    { name: "Ne Zha", image: "Smite Icons/Ne_Zha.png", roles: ["Jungle"]    },
+    { name: "Neith", image: "Smite Icons/Neith.png", roles: ["Mid", "Carry"]    },
+    { name: "Nemesis", image: "Smite Icons/Nemesis.png", roles: ["Jungle"]    },
+    { name: "Nike", image: "Smite Icons/Nike.png", roles: ["Solo"]    },
+    { name: "Nox", image: "Smite Icons/Nox.png", roles: ["Support", "Mid"]    },
+    { name: "Nut", image: "Smite Icons/Nut.png", roles: ["Carry"]    },
+    { name: "Nu Wa", image: "Smite Icons/Nu_Wa.png", roles: ["Mid"]    },
+    { name: "Odin", image: "Smite Icons/Odin.png", roles: ["Solo"]    },
+    { name: "Olorun", image: "Smite Icons/Olorun.png", roles: ["Carry"]    },
+    { name: "Osiris", image: "Smite Icons/Osiris.png", roles: ["Solo"]    },
+    { name: "Pele", image: "Smite Icons/Pele.png", roles: ["Jungle"]    },
+    { name: "Persephone", image: "Smite Icons/Persephone.png", roles: ["Mid"]    },
+    { name: "Poseidon", image: "Smite Icons/Poseidon.png", roles: ["Mid"]    },
+    { name: "Ra", image: "Smite Icons/Ra.png", roles: ["Mid"]    },
+    { name: "Raijin", image: "Smite Icons/Raijin.png", roles: ["Mid"]    },
+    { name: "Rama", image: "Smite Icons/Rama.png", roles: ["Carry"]    },
+    { name: "Ratatoskr", image: "Smite Icons/Ratatoskr.png", roles: ["Jungle", "Solo"]    },
+    { name: "Ravana", image: "Smite Icons/Ravana.png", roles: ["Jungle"]    },
+    { name: "Scylla", image: "Smite Icons/Scylla.png", roles: ["Mid"]    },
+    { name: "Serqet", image: "Smite Icons/Serqet.png", roles: ["Jungle", "Support"]    },
+    { name: "Set", image: "Smite Icons/Set.png", roles: ["Jungle", "Mid", "Solo"]    },
+    { name: "Shiva", image: "Smite Icons/Shiva.png", roles: ["Solo"]    },
+    { name: "Skadi", image: "Smite Icons/Skadi.png", roles: ["Carry"]    },
+    { name: "Sobek", image: "Smite Icons/Sobek.png", roles: ["Solo"]    },
+    { name: "Sol", image: "Smite Icons/Sol.png", roles: ["Carry"]    },
+    { name: "Sun Wukong", image: "Smite Icons/Sun_Wukong.png", roles: ["Solo"]    },
+    { name: "Surtr", image: "Smite Icons/Surtr.png", roles: ["Solo", "Jungle"]    },
+    { name: "Susano", image: "Smite Icons/Susano.png", roles: ["Jungle"]    },
+    { name: "Sylvanus", image: "Smite Icons/Sylvanus.png", roles: ["Support"]    },
+    { name: "Terra", image: "Smite Icons/Terra.png", roles: ["Support", "Solo"]    },
+    { name: "Thanatos", image: "Smite Icons/Thanatos.png", roles: ["Jungle"]    },
+    { name: "The Morrigan", image: "Smite Icons/The_Morrigan.png", roles: ["Mid"]    },
+    { name: "Thor", image: "Smite Icons/Thor.png", roles: ["Jungle", "Solo"]    },
+    { name: "Thoth", image: "Smite Icons/Thoth.png", roles: ["Mid"]    },
+    { name: "Tiamat", image: "Smite Icons/Tiamat.png", roles: ["Mid"]    },
+    { name: "Tsukuyomi", image: "Smite Icons/Tsukuyomi.png", roles: ["Mid", "Jungle"]    },
+    { name: "Tyr", image: "Smite Icons/Tyr.png", roles: ["Support", "Solo"]    },
+    { name: "Ullr", image: "Smite Icons/Ullr.png", roles: ["Mid", "Carry"]    },
+    { name: "Vamana", image: "Smite Icons/Vamana.png", roles: ["Solo"]    },
+    { name: "Vulcan", image: "Smite Icons/Vulcan.png", roles: ["Mid"]    },
+    { name: "Xbalanque", image: "Smite Icons/Xbalanque.png", roles: ["Carry"]    },
+    { name: "Xing Tian", image: "Smite Icons/Xing_Tian.png", roles: ["Support"]    },
+    { name: "Yemoja", image: "Smite Icons/Yemoja.png", roles: ["Support"]    },
+    { name: "Ymir", image: "Smite Icons/Ymir.png", roles: ["Support"]    },
+    { name: "Yu Huang", image: "Smite Icons/Yu_Huang.png", roles: ["Mid"]    },
+    { name: "Zeus", image: "Smite Icons/Zeus.png", roles: ["Mid"]    },
+    { name: "Zhong Kui", image: "Smite Icons/Zhong_Kui.png", roles: ["Mid", "Solo"]    }
 ];
 
 let timer;
 let timeLeft = 25; // Set default timer value to 25 seconds
+let currentRoleFilter = null;
 
 function loadCharacters() {
     const characterArea = document.getElementById('character-list');
@@ -169,8 +170,15 @@ function filterGods() {
     const cards = document.querySelectorAll('.character-card');
     cards.forEach(card => {
         const name = card.querySelector('.character-name').innerText.toLowerCase();
-        card.style.display = name.includes(searchInput) ? 'block' : 'none';
+        const character = characters.find(char => char.name.toLowerCase() === name);
+        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
+        card.style.display = name.includes(searchInput) && roleMatch ? 'block' : 'none';
     });
+}
+
+function filterByRole(role) {
+    currentRoleFilter = role === currentRoleFilter ? null : role; // Toggle role filter
+    filterGods(); // Reapply filter
 }
 
 function drag(event) {
@@ -204,10 +212,20 @@ function dropBan(event) {
     const id = event.dataTransfer.getData("text");
 
     if (event.target.className.includes('ban-slot') && event.target.children.length === 0) {
+        const bannedContainer = document.createElement('div');
+        bannedContainer.className = 'banned-container';
+
         const clonedElement = createClonedElement(id);
         clonedElement.classList.add('resized');
-        event.target.appendChild(clonedElement);
-        greyOutCharacter(id, true);
+
+        const diagonalLine = document.createElement('div');
+        diagonalLine.className = 'diagonal-line';
+
+        bannedContainer.appendChild(clonedElement);
+        bannedContainer.appendChild(diagonalLine);
+        
+        event.target.appendChild(bannedContainer);
+        greyOutCharacter(id);
         resetTimer();
     }
 }
@@ -220,16 +238,10 @@ function createClonedElement(id) {
     return clone;
 }
 
-function greyOutCharacter(id, isBan = false) {
+function greyOutCharacter(id) {
     const characterImage = document.getElementById(id);
     if (characterImage) {
         characterImage.classList.add('greyed-out');
-    }
-    if (isBan) {
-        const clonedElement = document.getElementById(id + "-clone");
-        if (clonedElement) {
-            clonedElement.classList.add('greyed-out');
-        }
     }
 }
 
@@ -298,8 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const slots = document.querySelectorAll('.pick-slot, .ban-slot');
     slots.forEach(slot => {
         slot.addEventListener('click', function() {
-            if (this.firstChild && this.firstChild.className.includes('character-image')) {
-                const id = this.firstChild.id.replace('-clone', '');
+            if (this.firstChild && this.firstChild.className.includes('banned-container')) {
+                const id = this.firstChild.querySelector('.character-image').id.replace('-clone', '');
                 removeGreyOutCharacter(id);
                 this.removeChild(this.firstChild);
             }

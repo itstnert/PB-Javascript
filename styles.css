@@ -143,6 +143,35 @@ body {
     width: 40%;
 }
 
+.search-and-filter {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#searchBox {
+    width: 55%;
+    padding: 10px;
+    margin-left: 50px; /* Move to the left by 50 pixels */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.filter-icons {
+    display: flex;
+    gap: 10px;
+    margin-left: 10px; /* Move closer to the search bar */
+}
+
+.filter-icon {
+    width: 36px; /* Increase size by 20% from 30px */
+    height: 36px; /* Increase size by 20% from 30px */
+    cursor: pointer;
+}
+
 .picks.blue, .picks.red {
     flex-direction: column;
     align-items: center;
@@ -197,6 +226,7 @@ body {
     box-shadow: 0 2px px rgba(0,0,0,0.25);
     transition: transform 0.3s;
     cursor: pointer;
+    position: relative; /* Added to enable positioning of the diagonal line */
 }
 
 .character-image.greyed-out {
@@ -255,15 +285,6 @@ body {
     margin: 10px; /* Increased margin */
 }
 
-#searchBox {
-    width: 60%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
 .rename-container {
     display: flex;
     justify-content: space-around;
@@ -276,4 +297,25 @@ body {
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 16px;
+}
+
+/* Container for banned character with diagonal line */
+.banned-container {
+    position: relative;
+    width: 75px; /* Ensure it matches the ban-slot size */
+    height: 75px; /* Ensure it matches the ban-slot size */
+}
+
+.diagonal-line {
+    content: "";
+    position: absolute;
+    width: 80%; /* 25% of the diagonal length */
+    height: 3px; /* Thin line */
+    top: 20%; /* Center vertically */
+    left: 20%; /* Center horizontally */
+    background-color: white;
+    transform: translate(0%, 0%) rotate(45deg); /* Position and rotate */
+    transform-origin: 0 0; /* Ensure the line rotates around the center */
+    pointer-events: none; /* Allow interaction with the image underneath */
+    z-index: 1; /* Ensure it is above the image */
 }

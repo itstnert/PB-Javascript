@@ -54,7 +54,16 @@
             </div>
         </div>
         <div class="middle-section">
-            <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()">
+            <div class="search-and-filter">
+                <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()">
+                <div class="filter-icons">
+                    <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" onclick="filterByRole('Carry')">
+                    <img src="Smite Icons/support.png" alt="Support" class="filter-icon" onclick="filterByRole('Support')">
+                    <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" onclick="filterByRole('Mid')">
+                    <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" onclick="filterByRole('Jungle')">
+                    <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" onclick="filterByRole('Solo')">
+                </div>
+            </div>
             <div id="character-list" class="scroll-container"></div>
             <button class="clear-button" onclick="clearDraft()">Reset Draft</button>
         </div>
