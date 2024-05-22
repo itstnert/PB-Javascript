@@ -19,6 +19,10 @@
         <button class="timer-button" onclick="startTimer()">Start Draft Timer</button>
         <div id="timerDisplay" class="timer-display">25</div>
     </div>
+    <div class="rename-container">
+        <input type="text" class="rename-input" id="blueSideInput" placeholder="Rename Blue Side" oninput="renameSide('blue')">
+        <input type="text" class="rename-input" id="redSideInput" placeholder="Rename Red Side" oninput="renameSide('red')">
+    </div>
     <div class="bans-container">
         <div class="bans blue">
             <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
@@ -41,16 +45,16 @@
         <div class="side-container blue-side">
             <div class="picks blue">
                 <div class="pick-label">B1</div>
-                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">B2</div>
-                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">B3</div>
-                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="spacer-vertical"></div>
                 <div class="pick-label">B4</div>
-                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">B5</div>
-                <div class="pick-slot blue-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
             </div>
         </div>
         <div class="middle-section">
@@ -70,22 +74,18 @@
         <div class="side-container red-side">
             <div class="picks red">
                 <div class="pick-label">R1</div>
-                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">R2</div>
-                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">R3</div>
-                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="spacer-vertical"></div>
                 <div class="pick-label">R4</div>
-                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                 <div class="pick-label">R5</div>
-                <div class="pick-slot red-slot" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
             </div>
         </div>
-    </div>
-    <div class="rename-container">
-        <input type="text" class="rename-input" id="blueSideInput" placeholder="Rename Blue Side" oninput="renameSide('blue')">
-        <input type="text" class="rename-input" id="redSideInput" placeholder="Rename Red Side" oninput="renameSide('red')">
     </div>
     <script src="app.js"></script>
 </body>

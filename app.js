@@ -250,9 +250,20 @@ function removeGreyOutCharacter(id) {
     if (characterImage) {
         characterImage.classList.remove('greyed-out');
     }
-    const clonedElement = document.getElementById(id + "-clone");
-    if (clonedElement) {
-        clonedElement.parentNode.removeChild(clonedElement);
+}
+
+function removePick(event) {
+    if (event.target.className.includes('pick-slot') && event.target.firstChild) {
+        const id = event.target.firstChild.id.replace('-clone', '');
+        removeGreyOutCharacter(id);
+        event.target.removeChild(event.target.firstChild);
+        
+        // Append character back to the middle list
+        const characterArea = document.getElementById('character-list');
+        const existingCard = document.getElementById(id);
+        if (!existingCard) {
+            characterArea.appendChild(createCharacterCard(characters.find(char => char.name === id)));
+        }
     }
 }
 
@@ -307,10 +318,19 @@ function resetAndStopTimer() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCharacters();
-    const slots = document.querySelectorAll('.pick-slot, .ban-slot');
-    slots.forEach(slot => {
+    const pickSlots = document.querySelectorAll('.pick-slot');
+    pickSlots.forEach(slot => {
         slot.addEventListener('click', function() {
-            if (this.firstChild && this.firstChild.className.includes('banned-container')) {
+            if (this.firstChild) {
+                removePick({target: this});
+            }
+        });
+    });
+    
+    const banSlots = document.querySelectorAll('.ban-slot');
+    banSlots.forEach(slot => {
+        slot.addEventListener('click', function() {
+            if (this.firstChild) {
                 const id = this.firstChild.querySelector('.character-image').id.replace('-clone', '');
                 removeGreyOutCharacter(id);
                 this.removeChild(this.firstChild);
