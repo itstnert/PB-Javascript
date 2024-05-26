@@ -147,7 +147,7 @@ function loadCharacters() {
 function createCharacterCard(char) {
     let card = document.createElement('div');
     card.className = 'character-card';
-    
+
     let img = document.createElement('img');
     img.src = char.image;
     img.alt = char.name;
