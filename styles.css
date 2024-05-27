@@ -16,6 +16,7 @@ body {
 /* Header styles */
 .header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
     background-color: #1f1f1f;
@@ -132,6 +133,7 @@ body {
     padding: 20px;
     box-sizing: border-box;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .side-container {
@@ -343,5 +345,93 @@ body {
         border-style: dashed;
         border-color: #fff;
         border-width: 2px;
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-container {
+        position: static;
+        margin-top: 10px;
+    }
+
+    .timer-container {
+        position: static;
+        margin-top: 20px;
+    }
+
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .side-container, .middle-section {
+        width: 100%;
+    }
+
+    .side-container {
+        margin-bottom: 20px;
+    }
+
+    .search-and-filter {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #searchBox {
+        width: 90%;
+        margin: 0;
+        margin-bottom: 10px;
+    }
+
+    .filter-icons {
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .scroll-container {
+        height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 5px 0;
+    }
+
+    .blue-side-label, .red-side-label {
+        font-size: 18px;
+    }
+
+    .timer-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .timer-display {
+        font-size: 24px;
+        padding: 10px 20px;
+    }
+
+    .rename-input {
+        font-size: 14px;
+    }
+
+    .pick-slot, .ban-slot, .character-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .character-name {
+        font-size: 12px;
+    }
+
+    .scroll-container {
+        height: 300px;
     }
 }
