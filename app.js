@@ -75,7 +75,7 @@ const characters = [
     { name: "Kuzenbo", image: "Smite Icons/Kuzenbo.png", roles: ["Support", "Solo"]   },
     { name: "Lancelot", image: "Smite Icons/Lancelot.png", roles: ["Jungle"]    },
     { name: "Loki", image: "Smite Icons/Loki.png", roles: ["Jungle", "Smite 2"]    },
-    { name: "Maman Brigitte", image: "Smite Icons/Maman_Brigitte.png", roles: ["Jungle"]    },
+    { name: "Maman Brigitte", image: "Smite Icons/Maman_Brigitte.png", roles: ["Jungle", "Mid"]    },
     { name: "Martichoras", image: "Smite Icons/Martichoras.png", roles: ["Mid", "Carry"]    },
     { name: "Maui", image: "Smite Icons/Maui.png", roles: ["Support"]    },
     { name: "Medusa", image: "Smite Icons/Medusa.png", roles: ["Carry"]    },
