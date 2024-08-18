@@ -28,7 +28,7 @@ const characters = [
     { name: "Cerberus", image: "Smite Icons/Cerberus.png", roles: ["Solo", "Support"]  },
     { name: "Cernunnos", image: "Smite Icons/Cernunnos.png", roles: ["Carry", "Smite 2"]  },
     { name: "Chaac", image: "Smite Icons/Chaac.png", roles: ["Solo", "Smite 2"]  },
-    { name: "Chang'e", image: "Smite Icons/Change.png", roles: ["Mid", "Solo"]  },
+    { name: "Chang'e", image: "Smite Icons/Chang'e.png", roles: ["Mid", "Solo"]  },
     { name: "Charon", image: "Smite Icons/Charon.png", roles: ["Support"]  },
     { name: "Charybdis", image: "Smite Icons/Charybdis.png", roles: ["Carry"]  },
     { name: "Chernobog", image: "Smite Icons/Chernobog.png", roles: ["Carry"]  },
@@ -65,7 +65,7 @@ const characters = [
     { name: "Ix Chel", image: "Smite Icons/Ix_Chel.png", roles: ["Mid", "Support"]   },
     { name: "Izanami", image: "Smite Icons/Izanami.png", roles: ["Carry"]   },
     { name: "Janus", image: "Smite Icons/Janus.png", roles: ["Mid"]   },
-    { name: "Jing Wei", image: "Smite Icons/Jing_Wei.png", roles: ["Carry"]   },
+    { name: "Jing Wei", image: "Smite Icons/Jing_Wei.png", roles: ["Carry", "Smite 2"]   },
     { name: "Jormungandr", image: "Smite Icons/Jormungandr.png", roles: ["Solo"]   },
     { name: "Kali", image: "Smite Icons/Kali.png", roles: ["Jungle"]   },
     { name: "Khepri", image: "Smite Icons/Khepri.png", roles: ["Support"]   },
@@ -137,14 +137,25 @@ let timer;
 let timeLeft = 25; // Set default timer value to 25 seconds
 let currentRoleFilter = null;
 
+document.addEventListener('DOMContentLoaded', () => {
+    loadCharacters();
+});
+
 function loadCharacters() {
     const characterArea = document.getElementById('character-list');
     characterArea.innerHTML = '';
     characters.sort((a, b) => a.name.localeCompare(b.name));
+    
     characters.forEach(char => {
         characterArea.appendChild(createCharacterCard(char));
     });
+
+    // Apply the initial filter to hide gods that are only in "Smite 2"
+    filterGods();
 }
+
+// Ensure the filterGods function is correctly updated as previously provided.
+
 
 function createCharacterCard(char) {
     let card = document.createElement('div');
@@ -170,13 +181,25 @@ function createCharacterCard(char) {
 function filterGods() {
     const searchInput = document.getElementById('searchBox').value.toLowerCase();
     const cards = document.querySelectorAll('.character-card');
+
     cards.forEach(card => {
         const name = card.querySelector('.character-name').innerText.toLowerCase();
         const character = characters.find(char => char.name.toLowerCase() === name);
-        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
-        card.style.display = name.includes(searchInput) && roleMatch ? 'block' : 'none';
+
+        // Check if the character only has the "Smite 2" role
+        const isSmite2Only = character.roles.length === 1 && character.roles.includes('Smite 2');
+
+        // Determine if the character should be displayed
+        const roleMatch = currentRoleFilter 
+            ? character.roles.includes(currentRoleFilter) 
+            : !isSmite2Only; // Show only if not exclusive to Smite 2 when no filter is selected
+
+        const nameMatch = name.includes(searchInput);
+
+        card.style.display = nameMatch && roleMatch ? 'block' : 'none';
     });
 }
+
 
 function filterByRole(role) {
     currentRoleFilter = role === currentRoleFilter ? null : role; // Toggle role filter
@@ -316,6 +339,30 @@ function resetAndStopTimer() {
     clearInterval(timer);
     timeLeft = 25;
     document.getElementById('timerDisplay').innerText = timeLeft;
+}
+
+function filterByRole(role) {
+    currentRoleFilter = role === currentRoleFilter ? null : role; // Toggle role filter
+
+    if (currentRoleFilter === "Smite 2") {
+        // Update icons to Smite 2 versions
+        characters.forEach(char => {
+            const img = document.getElementById(char.name);
+            if (img && char.roles.includes("Smite 2")) {
+                img.src = `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`;
+            }
+        });
+    } else {
+        // Revert icons to the original versions
+        characters.forEach(char => {
+            const img = document.getElementById(char.name);
+            if (img) {
+                img.src = `Smite Icons/${char.name.replace(/ /g, '_')}.png`;
+            }
+        });
+    }
+
+    filterGods(); // Reapply filter
 }
 
 document.addEventListener('DOMContentLoaded', () => {
