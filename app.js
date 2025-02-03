@@ -437,7 +437,7 @@ function updateCharacterIcons() {
         const img = document.getElementById(char.name);
         if (img) {
             img.src = smite2FilterActive && char.roles.includes('Smite 2') 
-                ? `Smite Icons/${char.name.replace(/ /g, '_')}s2.png`
+                ? `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`
                 : `Smite Icons/${char.name.replace(/ /g, '_')}.png`;
         }
     });
