@@ -3,7 +3,7 @@ const characters = [
     { name: "Agni", image: "Smite Icons/Agni.png", roles: ["Mid", "Smite 2"] },
     { name: "Ah Muzen Cab", image: "Smite Icons/Ah_Muzen_Cab.png", roles: ["Mid", "Carry"] },
     { name: "Ah Puch", image: "Smite Icons/Ah_Puch.png", roles: ["Mid"]  },
-    { name: "Aladdin", image: "Smite Icons/Aladdin.png", roles: ["Smite 2"]   },
+    { name: "Aladdin", image: "Smite Icons/Aladdin.png", roles: ["Jungle", "Smite 2"]   },
     { name: "Amaterasu", image: "Smite Icons/Amaterasu.png", roles: ["Solo", "Smite 2"]  },
     { name: "Anhur", image: "Smite Icons/Anhur.png", roles: ["Carry", "Smite 2"]  },
     { name: "Anubis", image: "Smite Icons/Anubis.png", roles: ["Mid", "Smite 2"]  },
@@ -14,11 +14,11 @@ const characters = [
     { name: "Ares", image: "Smite Icons/Ares.png", roles: ["Support", "Smite 2"]  },
     { name: "Artemis", image: "Smite Icons/Artemis.png", roles: ["Carry"]  },
     { name: "Artio", image: "Smite Icons/Artio.png", roles: ["Solo", "Support"]  },
-    { name: "Athena", image: "Smite Icons/Athena.png", roles: ["Support", "Smite 2"]  },
+    { name: "Athena", image: "Smite Icons/Athena.png", roles: ["Support", "Jungle", "Smite 2"]  },
     { name: "Atlas", image: "Smite Icons/Atlas.png", roles: ["Support"]  },
     { name: "Awilix", image: "Smite Icons/Awilix.png", roles: ["Jungle"]  },
     { name: "Baba Yaga", image: "Smite Icons/Baba_Yaga.png", roles: ["Mid"]  },
-    { name: "Bacchus", image: "Smite Icons/Bacchus.png", roles: ["Support", "Smite 2"]  },
+    { name: "Bacchus", image: "Smite Icons/Bacchus.png", roles: ["Support", "Solo", "Smite 2"]  },
     { name: "Bake Kujira", image: "Smite Icons/Bake_Kujira.png", roles: ["Solo"]  },
     { name: "Bakasura", image: "Smite Icons/Bakasura.png", roles: ["Jungle"]  },
     { name: "Baron Samedi", image: "Smite Icons/Baron_Samedi.png", roles: ["Support", "Mid", "Solo", "Smite 2"]  },
@@ -45,7 +45,7 @@ const characters = [
     { name: "Erlang Shen", image: "Smite Icons/Erlang_Shen.png", roles: ["Jungle"]   },
     { name: "Eset", image: "Smite Icons/Eset.png", roles: ["Support", "Mid"]   },
     { name: "Fafnir", image: "Smite Icons/Fafnir.png", roles: ["Support"]   },
-    { name: "Fenrir", image: "Smite Icons/Fenrir.png", roles: ["Jungle", "Smite 2"]   },
+    { name: "Fenrir", image: "Smite Icons/Fenrir.png", roles: ["Jungle", "Support", "Smite 2"]   },
     { name: "Freya", image: "Smite Icons/Freya.png", roles: ["Carry"]   },
     { name: "Ganesha", image: "Smite Icons/Ganesha.png", roles: ["Support"]   },
     { name: "Geb", image: "Smite Icons/Geb.png", roles: ["Support", "Smite 2"]   },
@@ -54,11 +54,11 @@ const characters = [
     { name: "Hachiman", image: "Smite Icons/Hachiman.png", roles: ["Carry"]   },
     { name: "Hades", image: "Smite Icons/Hades.png", roles: ["Solo", "Smite 2"]   },
     { name: "He Bo", image: "Smite Icons/He_Bo.png", roles: ["Jungle", "Mid"]   },
-    { name: "Hecate", image: "Smite Icons/Hecate.png", roles: ["Smite 2"]   },
+    { name: "Hecate", image: "Smite Icons/Hecate.png", roles: ["Mid", "Smite 2"]   },
     { name: "Heimdallr", image: "Smite Icons/Heimdallr.png", roles: ["Carry"]   },
     { name: "Hel", image: "Smite Icons/Hel.png", roles: ["Mid", "Support"]   },
     { name: "Hera", image: "Smite Icons/Hera.png", roles: ["Mid"]   },
-    { name: "Hercules", image: "Smite Icons/Hercules.png", roles: ["Solo", "Smite 2"]   },
+    { name: "Hercules", image: "Smite Icons/Hercules.png", roles: ["Solo", "Jungle", "Smite 2"]   },
     { name: "Horus", image: "Smite Icons/Horus.png", roles: ["Support", "Solo"]   },
     { name: "Hou Yi", image: "Smite Icons/Hou_Yi.png", roles: ["Carry"]   },
     { name: "Hun Batz", image: "Smite Icons/Hun_Batz.png", roles: ["Jungle", "Smite 2"]   },
@@ -83,7 +83,7 @@ const characters = [
     { name: "Mercury", image: "Smite Icons/Mercury.png", roles: ["Jungle"]    },
     { name: "Merlin", image: "Smite Icons/Merlin.png", roles: ["Mid"]    },
     { name: "Morgan Le Fay", image: "Smite Icons/Morgan_Le_Fay.png", roles: ["Mid"]    },
-    { name: "Mordred", image: "Smite Icons/mordred.png", roles: ["Smite 2"]    },
+    { name: "Mordred", image: "Smite Icons/mordred.png", roles: ["Solo", "Jungle", "Smite 2"]    },
     { name: "Mulan", image: "Smite Icons/Mulan.png", roles: ["Solo", "Smite 2"]    },
     { name: "Ne Zha", image: "Smite Icons/Ne_Zha.png", roles: ["Jungle"]    },
     { name: "Neith", image: "Smite Icons/Neith.png", roles: ["Mid", "Carry", "Smite 2"]    },
@@ -98,7 +98,7 @@ const characters = [
     { name: "Pele", image: "Smite Icons/Pele.png", roles: ["Jungle", "Smite 2"]    },
     { name: "Persephone", image: "Smite Icons/Persephone.png", roles: ["Mid"]    },
     { name: "Poseidon", image: "Smite Icons/Poseidon.png", roles: ["Mid", "Smite 2"]    },
-    { name: "Ra", image: "Smite Icons/Ra.png", roles: ["Mid", "Smite 2"]    },
+    { name: "Ra", image: "Smite Icons/Ra.png", roles: ["Mid", "Solo", "Smite 2"]    },
     { name: "Raijin", image: "Smite Icons/Raijin.png", roles: ["Mid"]    },
     { name: "Rama", image: "Smite Icons/Rama.png", roles: ["Carry"]    },
     { name: "Ratatoskr", image: "Smite Icons/Ratatoskr.png", roles: ["Jungle", "Solo"]    },
@@ -130,12 +130,12 @@ const characters = [
     { name: "Yemoja", image: "Smite Icons/Yemoja.png", roles: ["Support", "Smite 2"]    },
     { name: "Ymir", image: "Smite Icons/Ymir.png", roles: ["Support", "Smite 2"]    },
     { name: "Yu Huang", image: "Smite Icons/Yu_Huang.png", roles: ["Mid"]    },
-    { name: "Zeus", image: "Smite Icons/Zeus.png", roles: ["Mid", "Smite 2"]    },
+    { name: "Zeus", image: "Smite Icons/Zeus.png", roles: ["Mid", "Carry", "Smite 2"]    },
     { name: "Zhong Kui", image: "Smite Icons/Zhong_Kui.png", roles: ["Mid", "Solo"]    }
 ];
 
 let timer;
-let timeLeft = 25; // Set default timer value to 25 seconds
+let timeLeft = 30; // Set default timer value to 30 seconds
 let currentRoleFilter = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -318,7 +318,7 @@ function renameSide(side) {
 
 function startTimer() {
     clearInterval(timer);
-    timeLeft = 25; // Start timer at 25 seconds
+    timeLeft = 30; // Start timer at 25 seconds
     document.getElementById('timerDisplay').innerText = timeLeft;
     timer = setInterval(() => {
         if (timeLeft <= 0) {
@@ -332,13 +332,13 @@ function startTimer() {
 }
 
 function resetTimer() {
-    timeLeft = 25;
+    timeLeft = 30;
     document.getElementById('timerDisplay').innerText = timeLeft;
 }
 
 function resetAndStopTimer() {
     clearInterval(timer);
-    timeLeft = 25;
+    timeLeft = 30;
     document.getElementById('timerDisplay').innerText = timeLeft;
 }
 
@@ -389,3 +389,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+let smite2FilterActive = false; // Track Smite 2 filter state
+
+function toggleSmite2Filter() {
+    smite2FilterActive = !smite2FilterActive;
+    const smite2Button = document.getElementById('smite2Button');
+    
+    if (smite2FilterActive) {
+        smite2Button.classList.add('active-smite2'); // Add glow effect
+    } else {
+        smite2Button.classList.remove('active-smite2'); // Remove glow effect
+    }
+    
+    updateCharacterIcons(); // Update character icons based on Smite 2 filter
+    filterGods(); // Reapply filter logic
+}
+
+function filterGods() {
+    const searchInput = document.getElementById('searchBox').value.toLowerCase();
+    const cards = Array.from(document.querySelectorAll('.character-card'));
+
+    const visibleCards = cards.filter(card => {
+        const name = card.querySelector('.character-name').innerText.toLowerCase();
+        const character = characters.find(char => char.name.toLowerCase() === name);
+
+        const isSmite2Only = character.roles.length === 1 && character.roles.includes('Smite 2');
+        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
+        const smite2Match = smite2FilterActive ? character.roles.includes('Smite 2') : !isSmite2Only;
+        const nameMatch = name.includes(searchInput);
+
+        return nameMatch && roleMatch && smite2Match;
+    });
+
+    cards.forEach(card => {
+        if (visibleCards.includes(card)) {
+            card.style.display = 'inline-flex'; // Ensure proper alignment in grid
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    updateCharacterIcons(); // Ensure icons are updated when filtering
+}
+
+function updateCharacterIcons() {
+    characters.forEach(char => {
+        const img = document.getElementById(char.name);
+        if (img) {
+            img.src = smite2FilterActive && char.roles.includes('Smite 2') 
+                ? `Smite Icons/${char.name.replace(/ /g, '_')}s2.png`
+                : `Smite Icons/${char.name.replace(/ /g, '_')}.png`;
+        }
+    });
+}
+
+/* Ensure only one Smite 2 button exists */
+document.addEventListener('DOMContentLoaded', () => {
+    let smite2Button = document.getElementById('smite2Button');
+    if (!smite2Button) {
+        const filterContainer = document.querySelector('.filter-icons');
+        if (filterContainer) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'smite2-button-container';
+            
+            smite2Button = document.createElement('button');
+            smite2Button.id = 'smite2Button';
+            smite2Button.innerText = 'Smite 2 Gods';
+            smite2Button.className = 'smite2-toggle-button';
+            smite2Button.onclick = toggleSmite2Filter;
+            
+            buttonContainer.appendChild(smite2Button);
+            filterContainer.parentNode.insertBefore(buttonContainer, filterContainer);
+        }
+    }
+});
