@@ -128,7 +128,7 @@ const characters = [
     { name: "Vulcan", image: "Smite Icons/Vulcan.png", roles: ["Mid", "Support", "Smite 2"]    },
     { name: "Xbalanque", image: "Smite Icons/Xbalanque.png", roles: ["Carry"]    },
     { name: "Xing Tian", image: "Smite Icons/Xing_Tian.png", roles: ["Support"]    },
-    { name: "Yemoja", image: "Smite Icons/Yemoja.png", roles: ["Support", "Smite 2"]    },
+    { name: "Yemoja", image: "Smite Icons/Yemoja.png", roles: ["Support", "Carry", "Mid", "Jungle", "Solo", "Smite 2"]    },
     { name: "Ymir", image: "Smite Icons/Ymir.png", roles: ["Support", "Solo", "Smite 2"]    },
     { name: "Yu Huang", image: "Smite Icons/Yu_Huang.png", roles: ["Mid"]    },
     { name: "Zeus", image: "Smite Icons/Zeus.png", roles: ["Mid", "Carry", "Smite 2"]    },
