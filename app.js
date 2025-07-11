@@ -1,6 +1,6 @@
 const characters = [
     { name: "Achilles", image: "Smite Icons/Achilles.png", roles: ["Solo", "Jungle", "Smite 2"] },
-    { name: "Agni", image: "Smite Icons/Agni.png", roles: ["Mid", "Smite 2"] },
+    { name: "Agni", image: "Smite Icons/Agni.png", roles: ["Mid", "Carry", "Smite 2"] },
     { name: "Ah Muzen Cab", image: "Smite Icons/Ah_Muzen_Cab.png", roles: ["Mid", "Carry"] },
     { name: "Ah Puch", image: "Smite Icons/Ah_Puch.png", roles: ["Mid"]  },
     { name: "Aladdin", image: "Smite Icons/Aladdin.png", roles: ["Jungle", "Mid", "Smite 2"]   },
@@ -97,7 +97,7 @@ const characters = [
     { name: "Osiris", image: "Smite Icons/Osiris.png", roles: ["Solo"]    },
     { name: "Pele", image: "Smite Icons/Pele.png", roles: ["Jungle", "Solo", "Smite 2"]    },
     { name: "Persephone", image: "Smite Icons/Persephone.png", roles: ["Mid"]    },
-    { name: "Poseidon", image: "Smite Icons/Poseidon.png", roles: ["Mid", "Smite 2"]    },
+    { name: "Poseidon", image: "Smite Icons/Poseidon.png", roles: ["Mid", "Carry", "Smite 2"]    },
     { name: "Princess Bari", image: "Smite Icons/Princess_Bari.png", roles: ["Mid", "Carry","Smite 2"]    },
     { name: "Ra", image: "Smite Icons/Ra.png", roles: ["Mid", "Solo", "Smite 2"]    },
     { name: "Raijin", image: "Smite Icons/Raijin.png", roles: ["Mid"]    },
