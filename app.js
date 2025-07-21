@@ -104,7 +104,7 @@ const characters = [
     { name: "Rama", image: "Smite Icons/Rama.png", roles: ["Carry", "Smite 2"]    },
     { name: "Ratatoskr", image: "Smite Icons/Ratatoskr.png", roles: ["Jungle", "Solo"]    },
     { name: "Ravana", image: "Smite Icons/Ravana.png", roles: ["Jungle"]    },
-    { name: "Scylla", image: "Smite Icons/Scylla.png", roles: ["Mid"]    },
+    { name: "Scylla", image: "Smite Icons/Scylla.png", roles: ["Mid", "Smite 2"]    },
     { name: "Serqet", image: "Smite Icons/Serqet.png", roles: ["Jungle", "Support"]    },
     { name: "Set", image: "Smite Icons/Set.png", roles: ["Jungle", "Mid", "Solo"]    },
     { name: "Shiva", image: "Smite Icons/Shiva.png", roles: ["Solo"]    },
