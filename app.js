@@ -116,7 +116,7 @@ const characters = [
     { name: "Susano", image: "Smite Icons/Susano.png", roles: ["Jungle", "Smite 2"]    },
     { name: "Sylvanus", image: "Smite Icons/Sylvanus.png", roles: ["Support"]    },
     { name: "Terra", image: "Smite Icons/Terra.png", roles: ["Support", "Solo"]    },
-    { name: "Thanatos", image: "Smite Icons/Thanatos.png", roles: ["Jungle", "Smite 2"]    },
+    { name: "Thanatos", image: "Smite Icons/Thanatos.png", roles: ["Jungle", "Solo", "Smite 2"]    },
     { name: "The Morrigan", image: "Smite Icons/The_Morrigan.png", roles: ["Mid", "Smite 2"]    },
     { name: "Thor", image: "Smite Icons/Thor.png", roles: ["Jungle", "Solo", "Smite 2"]    },
     { name: "Thoth", image: "Smite Icons/Thoth.png", roles: ["Mid"]    },
