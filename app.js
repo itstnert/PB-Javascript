@@ -60,14 +60,14 @@ const characters = [
     { name: "Hera", image: "Smite Icons/Hera.png", roles: ["Mid"]   },
     { name: "Hercules", image: "Smite Icons/Hercules.png", roles: ["Solo", "Jungle", "Smite 2"]   },
     { name: "Horus", image: "Smite Icons/Horus.png", roles: ["Support", "Solo"]   },
-    { name: "Hou Yi", image: "Smite Icons/Hou_Yi.png", roles: ["Carry"]   },
+    { name: "Hou Yi", image: "Smite Icons/Hou_Yi.png", roles: ["Carry", "Smite 2"]   },
     { name: "Hun Batz", image: "Smite Icons/Hun_Batz.png", roles: ["Jungle", "Smite 2"]   },
     { name: "Ishtar", image: "Smite Icons/Ishtar.png", roles: ["Carry"]   },
     { name: "Ix Chel", image: "Smite Icons/Ix_Chel.png", roles: ["Mid", "Support"]   },
     { name: "Izanami", image: "Smite Icons/Izanami.png", roles: ["Carry", "Smite 2"]   },
-    { name: "Janus", image: "Smite Icons/Janus.png", roles: ["Mid"]   },
+    { name: "Janus", image: "Smite Icons/Janus.png", roles: ["Mid", "Smite 2"]   },
     { name: "Jing Wei", image: "Smite Icons/Jing_Wei.png", roles: ["Carry", "Smite 2"]   },
-    { name: "Jormungandr", image: "Smite Icons/Jormungandr.png", roles: ["Solo"]   },
+    { name: "Jormungandr", image: "Smite Icons/Jormungandr.png", roles: ["Solo", "Support", "Smite 2"]   },
     { name: "Kali", image: "Smite Icons/Kali.png", roles: ["Jungle", "Carry", "Smite 2"]   },
     { name: "Khepri", image: "Smite Icons/Khepri.png", roles: ["Support", "Smite 2"]   },
     { name: "King Arthur", image: "Smite Icons/King_Arthur.png", roles: ["Solo"]   },
@@ -111,7 +111,7 @@ const characters = [
     { name: "Skadi", image: "Smite Icons/Skadi.png", roles: ["Carry"]    },
     { name: "Sobek", image: "Smite Icons/Sobek.png", roles: ["Solo", "Support", "Smite 2"]    },
     { name: "Sol", image: "Smite Icons/Sol.png", roles: ["Carry", "Mid", "Smite 2"]    },
-    { name: "Sun Wukong", image: "Smite Icons/Sun_Wukong.png", roles: ["Solo"]    },
+    { name: "Sun Wukong", image: "Smite Icons/Sun_Wukong.png", roles: ["Solo", "Mid", "Smite 2"]    },
     { name: "Surtr", image: "Smite Icons/Surtr.png", roles: ["Solo", "Jungle"]    },
     { name: "Susano", image: "Smite Icons/Susano.png", roles: ["Jungle", "Smite 2"]    },
     { name: "Sylvanus", image: "Smite Icons/Sylvanus.png", roles: ["Support"]    },
@@ -136,48 +136,49 @@ const characters = [
 ];
 
 let timer;
-let timeLeft = 30; // Set default timer value to 30 seconds
+let timeLeft = 30;
 let currentRoleFilter = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCharacters();
+    setupPickAndBanListeners();
 });
 
 function loadCharacters() {
     const characterArea = document.getElementById('character-list');
     characterArea.innerHTML = '';
-    characters.sort((a, b) => a.name.localeCompare(b.name));
-    
-    characters.forEach(char => {
-        characterArea.appendChild(createCharacterCard(char));
-    });
 
-    // Apply the initial filter to hide gods that are only in "Smite 2"
+    characters
+        .filter(char => char.roles.includes('Smite 2'))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(char => {
+            characterArea.appendChild(createCharacterCard(char));
+        });
+
     filterGods();
 }
 
-// Ensure the filterGods function is correctly updated as previously provided.
-
-
 function createCharacterCard(char) {
-    let card = document.createElement('div');
-    card.className = 'character-card';
+  let card = document.createElement('div');
+  card.className = 'character-card';
 
-    let img = document.createElement('img');
-    img.src = char.image;
-    img.alt = char.name;
-    img.id = char.name;
-    img.className = 'character-image';
-    img.draggable = true;
-    img.addEventListener('dragstart', drag);
+  let img = document.createElement('img');
+  img.src = `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`;
+  img.alt = char.name;
+  img.id = char.name;
+  img.className = 'character-image';
+  img.draggable = true;
+  img.loading = 'lazy';         // Mobile perf
+  img.decoding = 'async';       // Decode off main path
+  img.addEventListener('dragstart', drag);
 
-    let name = document.createElement('div');
-    name.className = 'character-name';
-    name.innerText = char.name;
+  let name = document.createElement('div');
+  name.className = 'character-name';
+  name.innerText = char.name;
 
-    card.appendChild(img);
-    card.appendChild(name);
-    return card;
+  card.appendChild(img);
+  card.appendChild(name);
+  return card;
 }
 
 function filterGods() {
@@ -185,27 +186,19 @@ function filterGods() {
     const cards = document.querySelectorAll('.character-card');
 
     cards.forEach(card => {
-        const name = card.querySelector('.character-name').innerText.toLowerCase();
-        const character = characters.find(char => char.name.toLowerCase() === name);
+        const nameText = card.querySelector('.character-name').innerText.toLowerCase();
+        const character = characters.find(c => c.name.toLowerCase() === nameText);
 
-        // Check if the character only has the "Smite 2" role
-        const isSmite2Only = character.roles.length === 1 && character.roles.includes('Smite 2');
+        const nameMatch = nameText.includes(searchInput);
+        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
 
-        // Determine if the character should be displayed
-        const roleMatch = currentRoleFilter 
-            ? character.roles.includes(currentRoleFilter) 
-            : !isSmite2Only; // Show only if not exclusive to Smite 2 when no filter is selected
-
-        const nameMatch = name.includes(searchInput);
-
-        card.style.display = nameMatch && roleMatch ? 'block' : 'none';
+        card.style.display = nameMatch && roleMatch ? 'inline-flex' : 'none';
     });
 }
 
-
 function filterByRole(role) {
-    currentRoleFilter = role === currentRoleFilter ? null : role; // Toggle role filter
-    filterGods(); // Reapply filter
+    currentRoleFilter = role === currentRoleFilter ? null : role;
+    filterGods();
 }
 
 function drag(event) {
@@ -284,13 +277,6 @@ function removePick(event) {
         const id = event.target.firstChild.id.replace('-clone', '');
         removeGreyOutCharacter(id);
         event.target.removeChild(event.target.firstChild);
-        
-        // Append character back to the middle list
-        const characterArea = document.getElementById('character-list');
-        const existingCard = document.getElementById(id);
-        if (!existingCard) {
-            characterArea.appendChild(createCharacterCard(characters.find(char => char.name === id)));
-        }
     }
 }
 
@@ -319,7 +305,7 @@ function renameSide(side) {
 
 function startTimer() {
     clearInterval(timer);
-    timeLeft = 30; // Start timer at 25 seconds
+    timeLeft = 30;
     document.getElementById('timerDisplay').innerText = timeLeft;
     timer = setInterval(() => {
         if (timeLeft <= 0) {
@@ -343,41 +329,16 @@ function resetAndStopTimer() {
     document.getElementById('timerDisplay').innerText = timeLeft;
 }
 
-function filterByRole(role) {
-    currentRoleFilter = role === currentRoleFilter ? null : role; // Toggle role filter
-
-    if (currentRoleFilter === "Smite 2") {
-        // Update icons to Smite 2 versions
-        characters.forEach(char => {
-            const img = document.getElementById(char.name);
-            if (img && char.roles.includes("Smite 2")) {
-                img.src = `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`;
-            }
-        });
-    } else {
-        // Revert icons to the original versions
-        characters.forEach(char => {
-            const img = document.getElementById(char.name);
-            if (img) {
-                img.src = `Smite Icons/${char.name.replace(/ /g, '_')}.png`;
-            }
-        });
-    }
-
-    filterGods(); // Reapply filter
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadCharacters();
+function setupPickAndBanListeners() {
     const pickSlots = document.querySelectorAll('.pick-slot');
     pickSlots.forEach(slot => {
         slot.addEventListener('click', function() {
             if (this.firstChild) {
-                removePick({target: this});
+                removePick({ target: this });
             }
         });
     });
-    
+
     const banSlots = document.querySelectorAll('.ban-slot');
     banSlots.forEach(slot => {
         slot.addEventListener('click', function() {
@@ -388,79 +349,114 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-});
+}
 
-let smite2FilterActive = false; // Track Smite 2 filter state
+// --- Touch / Pointer drag support for mobile ---
+let draggingId = null;
+let dragGhost = null;
 
-function toggleSmite2Filter() {
-    smite2FilterActive = !smite2FilterActive;
-    const smite2Button = document.getElementById('smite2Button');
-    
-    if (smite2FilterActive) {
-        smite2Button.classList.add('active-smite2'); // Add glow effect
-    } else {
-        smite2Button.classList.remove('active-smite2'); // Remove glow effect
+function initTouchDrag() {
+  // Make every character image respond to pointer events
+  document.addEventListener('pointerdown', onPointerDown, { passive: true });
+  document.addEventListener('pointermove', onPointerMove, { passive: false });
+  document.addEventListener('pointerup', onPointerUp, { passive: true });
+  document.addEventListener('pointercancel', onPointerUp, { passive: true });
+}
+
+function onPointerDown(e) {
+  const img = e.target.closest('.character-image');
+  if (!img || img.classList.contains('greyed-out')) return;
+  draggingId = img.id;
+
+  // Create a floating ghost preview
+  dragGhost = img.cloneNode(true);
+  dragGhost.style.position = 'fixed';
+  dragGhost.style.pointerEvents = 'none';
+  dragGhost.style.zIndex = '9999';
+  dragGhost.style.opacity = '0.85';
+  dragGhost.style.transform = 'translate(-50%, -50%) scale(1.05)';
+  dragGhost.style.boxShadow = '0 12px 22px rgba(0,0,0,.45)';
+  dragGhost.id = img.id + '-ghost';
+  document.body.appendChild(dragGhost);
+
+  positionGhost(e);
+}
+
+function onPointerMove(e) {
+  if (!dragGhost) return;
+  e.preventDefault(); // prevent scrolling while dragging
+  positionGhost(e);
+
+  // Visual drag-over feedback
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  updateDragOver(el);
+}
+
+function onPointerUp(e) {
+  if (!dragGhost) return;
+
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const target = el?.closest('.pick-slot, .ban-slot');
+
+  if (target && draggingId) {
+    // Use existing logic but without dataTransfer
+    if (target.classList.contains('pick-slot')) {
+      dropPickFromTouch(target, draggingId);
+    } else if (target.classList.contains('ban-slot')) {
+      dropBanFromTouch(target, draggingId);
     }
-    
-    updateCharacterIcons(); // Update character icons based on Smite 2 filter
-    filterGods(); // Reapply filter logic
+  }
+
+  clearDragUI();
 }
 
-function filterGods() {
-    const searchInput = document.getElementById('searchBox').value.toLowerCase();
-    const cards = Array.from(document.querySelectorAll('.character-card'));
-
-    const visibleCards = cards.filter(card => {
-        const name = card.querySelector('.character-name').innerText.toLowerCase();
-        const character = characters.find(char => char.name.toLowerCase() === name);
-
-        const isSmite2Only = character.roles.length === 1 && character.roles.includes('Smite 2');
-        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
-        const smite2Match = smite2FilterActive ? character.roles.includes('Smite 2') : !isSmite2Only;
-        const nameMatch = name.includes(searchInput);
-
-        return nameMatch && roleMatch && smite2Match;
-    });
-
-    cards.forEach(card => {
-        if (visibleCards.includes(card)) {
-            card.style.display = 'inline-flex'; // Ensure proper alignment in grid
-        } else {
-            card.style.display = 'none';
-        }
-    });
-
-    updateCharacterIcons(); // Ensure icons are updated when filtering
+function positionGhost(e) {
+  dragGhost.style.left = e.clientX + 'px';
+  dragGhost.style.top = e.clientY + 'px';
 }
 
-function updateCharacterIcons() {
-    characters.forEach(char => {
-        const img = document.getElementById(char.name);
-        if (img) {
-            img.src = smite2FilterActive && char.roles.includes('Smite 2') 
-                ? `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`
-                : `Smite Icons/${char.name.replace(/ /g, '_')}.png`;
-        }
-    });
+function updateDragOver(el) {
+  document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
+    .forEach(n => n.classList.remove('drag-over'));
+  const slot = el?.closest?.('.pick-slot, .ban-slot');
+  if (slot) slot.classList.add('drag-over');
 }
 
-/* Ensure only one Smite 2 button exists */
-document.addEventListener('DOMContentLoaded', () => {
-    let smite2Button = document.getElementById('smite2Button');
-    if (!smite2Button) {
-        const filterContainer = document.querySelector('.filter-icons');
-        if (filterContainer) {
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'smite2-button-container';
-            
-            smite2Button = document.createElement('button');
-            smite2Button.id = 'smite2Button';
-            smite2Button.innerText = 'Smite 2 Gods';
-            smite2Button.className = 'smite2-toggle-button';
-            smite2Button.onclick = toggleSmite2Filter;
-            
-            buttonContainer.appendChild(smite2Button);
-            filterContainer.parentNode.insertBefore(buttonContainer, filterContainer);
-        }
-    }
-});
+function clearDragUI() {
+  document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
+    .forEach(n => n.classList.remove('drag-over'));
+  dragGhost?.remove();
+  dragGhost = null;
+  draggingId = null;
+}
+
+// Touch-friendly drops (same behavior as dropPick/dropBan)
+function dropPickFromTouch(target, id) {
+  if (target.children.length === 0) {
+    target.appendChild(createClonedElement(id));
+    greyOutCharacter(id);
+    resetTimer();
+  }
+}
+
+function dropBanFromTouch(target, id) {
+  if (target.children.length === 0) {
+    const bannedContainer = document.createElement('div');
+    bannedContainer.className = 'banned-container';
+
+    const clonedElement = createClonedElement(id);
+    clonedElement.classList.add('resized');
+
+    const diagonalLine = document.createElement('div');
+    diagonalLine.className = 'diagonal-line';
+
+    bannedContainer.appendChild(clonedElement);
+    bannedContainer.appendChild(diagonalLine);
+    target.appendChild(bannedContainer);
+    greyOutCharacter(id);
+    resetTimer();
+  }
+}
+
+// Call this once DOM is ready, alongside your existing setup
+document.addEventListener('DOMContentLoaded', initTouchDrag);

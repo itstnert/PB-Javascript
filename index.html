@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smite Draft Tool</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="Smite Icons/favicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="Smite Icons/favicon.png" type="image/png" />
 </head>
 <body>
     <div class="header">
-        <div class="blue-side-label" id="blueSideLabel">Blue Side</div>
+        <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
+
+        <!-- Centered Smite 2 Logo -->
         <div class="logo-container">
-            <img src="Smite Icons/Trent.png" alt="Logo" class="logo">
-            <div class="made-by">V1.0 Made by @TrentUDK</div>
+            <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
         </div>
-        <div class="red-side-label" id="redSideLabel">Red Side</div>
+
+        <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
     </div>
     
     <div class="timer-container">
-        
         <button class="timer-button" onclick="startTimer()">Start Draft Timer</button>
         <div id="timerDisplay" class="timer-display">30</div>
     </div>
     
     <div class="rename-container">
-        <input type="text" class="rename-input" id="blueSideInput" placeholder="Rename Blue Side" oninput="renameSide('blue')">
-        <input type="text" class="rename-input" id="redSideInput" placeholder="Rename Red Side" oninput="renameSide('red')">
+        <input
+            type="text"
+            class="rename-input"
+            id="blueSideInput"
+            placeholder="Rename Blue Side"
+            oninput="renameSide('blue')"
+        />
+        <input
+            type="text"
+            class="rename-input"
+            id="redSideInput"
+            placeholder="Rename Red Side"
+            oninput="renameSide('red')"
+        />
     </div>
     
     <div class="bans-container">
@@ -62,20 +75,15 @@
         </div>
         
         <div class="middle-section">
-            <!-- Smite 2 Toggle Button -->
-            <div class="smite2-button-container">
-                <button id="smite2Button" class="smite2-toggle-button" onclick="toggleSmite2Filter()">Smite 2</button>
-            </div>
-        
             <div class="search-and-filter">
-                <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()">
+                <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()" />
                 
                 <div class="filter-icons">
-                    <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" onclick="filterByRole('Carry')">
-                    <img src="Smite Icons/support.png" alt="Support" class="filter-icon" onclick="filterByRole('Support')">
-                    <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" onclick="filterByRole('Mid')">
-                    <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" onclick="filterByRole('Jungle')">
-                    <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" onclick="filterByRole('Solo')">
+                    <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" onclick="filterByRole('Carry')" />
+                    <img src="Smite Icons/support.png" alt="Support" class="filter-icon" onclick="filterByRole('Support')" />
+                    <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" onclick="filterByRole('Mid')" />
+                    <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" onclick="filterByRole('Jungle')" />
+                    <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" onclick="filterByRole('Solo')" />
                 </div>
             </div>
             
@@ -97,6 +105,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Bottom-right credit -->
+    <div class="made-by-footer">V1.0 Made by @TrentUDK</div>
     
     <script src="app.js"></script>
 </body>
