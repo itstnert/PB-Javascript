@@ -1,3 +1,5 @@
+console.log("RT object on load:", window.RT);
+
 const characters = [
     { name: "Achilles", image: "Smite Icons/Achilles.png", roles: ["Solo", "Jungle", "Smite 2"] },
     { name: "Agni", image: "Smite Icons/Agni.png", roles: ["Mid", "Carry", "Smite 2"] },
@@ -134,329 +136,755 @@ const characters = [
     { name: "Zeus", image: "Smite Icons/Zeus.png", roles: ["Mid", "Carry", "Smite 2"]    },
     { name: "Zhong Kui", image: "Smite Icons/Zhong_Kui.png", roles: ["Mid", "Solo"]    }
 ];
-
-let timer;
-let timeLeft = 30;
+// ========== Globals ==========
 let currentRoleFilter = null;
+let timerInterval = null;
+let readyCountdown = null;
+let turnInterval = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadCharacters();
-    setupPickAndBanListeners();
-});
+const TURN_DURATION = 20; // seconds per pick/ban turn
+let currentTurnIndex = 0;
+let readyInProgress = false;
+let turnInProgress = false;
+let hasStartedDraft = false;
 
-function loadCharacters() {
-    const characterArea = document.getElementById('character-list');
-    characterArea.innerHTML = '';
+const TURN_ORDER = [
+  { type: 'ban', team: 'blue' },
+  { type: 'ban', team: 'red' },
+  { type: 'ban', team: 'blue' },
+  { type: 'ban', team: 'red' },
+  { type: 'ban', team: 'blue' },
+  { type: 'ban', team: 'red' },
+  { type: 'pick', team: 'blue' },
+  { type: 'pick', team: 'red' },
+  { type: 'pick', team: 'red' },
+  { type: 'pick', team: 'blue' },
+  { type: 'pick', team: 'blue' },
+  { type: 'pick', team: 'red' },
+  { type: 'pick', team: 'red' },
+  { type: 'pick', team: 'blue' },
+  { type: 'pick', team: 'blue' },
+  { type: 'pick', team: 'red' }
+];
 
-    characters
-        .filter(char => char.roles.includes('Smite 2'))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .forEach(char => {
-            characterArea.appendChild(createCharacterCard(char));
-        });
+// ========== Utility Functions ==========
+function mySide() {
+  const state = window.__draftState;
+  if (!state || !window.RT?.isConnected()) return null;
+  const me = window.RT.getClientId();
+  if (state.owners.blue === me) return 'blue';
+  if (state.owners.red === me) return 'red';
+  return null;
+}
 
-    filterGods();
+function canEditTarget(target) {
+  const side = mySide();
+  if (!side) return false;
+  if (target.closest('.blue-side') || target.closest('.bans.blue')) return side === 'blue';
+  if (target.closest('.red-side') || target.closest('.bans.red')) return side === 'red';
+  return false;
 }
 
 function createCharacterCard(char) {
-  let card = document.createElement('div');
+  const card = document.createElement('div');
   card.className = 'character-card';
-
-  let img = document.createElement('img');
-  img.src = `Smite Icons/${char.name.replace(/ /g, '_')}S2.png`;
+  const img = document.createElement('img');
+  const norm = char.name.replace(/ /g, '_');
+  img.src = `Smite Icons/${norm}S2.png`;
   img.alt = char.name;
   img.id = char.name;
   img.className = 'character-image';
   img.draggable = true;
-  img.loading = 'lazy';         // Mobile perf
-  img.decoding = 'async';       // Decode off main path
+  img.loading = 'lazy';
+  img.decoding = 'async';
   img.addEventListener('dragstart', drag);
-
-  let name = document.createElement('div');
+  const name = document.createElement('div');
   name.className = 'character-name';
   name.innerText = char.name;
-
-  card.appendChild(img);
-  card.appendChild(name);
+  card.append(img, name);
   return card;
 }
 
-function filterGods() {
-    const searchInput = document.getElementById('searchBox').value.toLowerCase();
-    const cards = document.querySelectorAll('.character-card');
-
-    cards.forEach(card => {
-        const nameText = card.querySelector('.character-name').innerText.toLowerCase();
-        const character = characters.find(c => c.name.toLowerCase() === nameText);
-
-        const nameMatch = nameText.includes(searchInput);
-        const roleMatch = currentRoleFilter ? character.roles.includes(currentRoleFilter) : true;
-
-        card.style.display = nameMatch && roleMatch ? 'inline-flex' : 'none';
-    });
-}
-
-function filterByRole(role) {
-    currentRoleFilter = role === currentRoleFilter ? null : role;
-    filterGods();
-}
-
-function drag(event) {
-    event.dataTransfer.setData("text", event.target.id);
-}
-
-function allowDrop(event) {
-    event.preventDefault();
-    event.target.classList.add('drag-over');
-}
-
-function dragLeave(event) {
-    event.target.classList.remove('drag-over');
-}
-
-function dropPick(event) {
-    event.preventDefault();
-    event.target.classList.remove('drag-over');
-    const id = event.dataTransfer.getData("text");
-
-    if (event.target.className.includes('pick-slot') && event.target.children.length === 0) {
-        event.target.appendChild(createClonedElement(id));
-        greyOutCharacter(id);
-        resetTimer();
-    }
-}
-
-function dropBan(event) {
-    event.preventDefault();
-    event.target.classList.remove('drag-over');
-    const id = event.dataTransfer.getData("text");
-
-    if (event.target.className.includes('ban-slot') && event.target.children.length === 0) {
-        const bannedContainer = document.createElement('div');
-        bannedContainer.className = 'banned-container';
-
-        const clonedElement = createClonedElement(id);
-        clonedElement.classList.add('resized');
-
-        const diagonalLine = document.createElement('div');
-        diagonalLine.className = 'diagonal-line';
-
-        bannedContainer.appendChild(clonedElement);
-        bannedContainer.appendChild(diagonalLine);
-        
-        event.target.appendChild(bannedContainer);
-        greyOutCharacter(id);
-        resetTimer();
-    }
-}
-
-function createClonedElement(id) {
-    const original = document.getElementById(id);
-    const clone = original.cloneNode(true);
-    clone.id = id + "-clone";
-    clone.draggable = false;
-    return clone;
-}
-
 function greyOutCharacter(id) {
-    const characterImage = document.getElementById(id);
-    if (characterImage) {
-        characterImage.classList.add('greyed-out');
-    }
+  const img = document.getElementById(id);
+  if (img) img.classList.add('greyed-out');
 }
 
 function removeGreyOutCharacter(id) {
-    const characterImage = document.getElementById(id);
-    if (characterImage) {
-        characterImage.classList.remove('greyed-out');
+  const img = document.getElementById(id);
+  if (img) img.classList.remove('greyed-out');
+}
+
+function createClonedElement(id) {
+  const orig = document.getElementById(id);
+  const clone = orig.cloneNode(true);
+  clone.id = id + '-clone';
+  clone.draggable = false;
+  return clone;
+}
+
+function slotIdFromTarget(target) {
+  if (target.closest('.blue-side')) {
+    const slots = [...document.querySelectorAll('.blue-side .pick-slot')];
+    const idx = slots.indexOf(target);
+    return idx >= 0 ? `B${idx + 1}` : null;
+  }
+  if (target.closest('.red-side')) {
+    const slots = [...document.querySelectorAll('.red-side .pick-slot')];
+    const idx = slots.indexOf(target);
+    return idx >= 0 ? `R${idx + 1}` : null;
+  }
+  return null;
+}
+
+function banIndexFromTarget(target) {
+  if (target.closest('.bans.blue')) {
+    const slots = [...document.querySelectorAll('.bans.blue .ban-slot')];
+    const idx = slots.indexOf(target);
+    return idx >= 0 ? { team: 'blue', index: idx } : null;
+  }
+  if (target.closest('.bans.red')) {
+    const slots = [...document.querySelectorAll('.bans.red .ban-slot')];
+    const idx = slots.indexOf(target);
+    return idx >= 0 ? { team: 'red', index: idx } : null;
+  }
+  return null;
+}
+
+// ========== Rendering ==========
+function renderDraftFromState(state) {
+  document.querySelectorAll('.pick-slot, .ban-slot').forEach(el => el.innerHTML = '');
+  document.querySelectorAll('.character-image.greyed-out').forEach(img => img.classList.remove('greyed-out'));
+
+  const applyPick = (slotId, name) => {
+    if (!name) return;
+    const isBlue = slotId[0] === 'B';
+    const idx = parseInt(slotId.slice(1), 10) - 1;
+    const slots = isBlue ? [...document.querySelectorAll('.blue-side .pick-slot')] : [...document.querySelectorAll('.red-side .pick-slot')];
+    const target = slots[idx];
+    if (target && !target.children.length) {
+      target.append(createClonedElement(name));
+      greyOutCharacter(name);
     }
+  }; 
+
+  const applyBan = (team, index, name) => {
+    if (index > 2 || !name) return;
+    let slots = [...document.querySelectorAll(`.bans.${team} .ban-slot`)];
+    // REMOVED: if (team === 'red') slots = slots.reverse();
+    const target = slots[index];
+    if (!target || target.children.length) return;
+    const container = document.createElement('div');
+    container.className = 'banned-container';
+    const clone = createClonedElement(name);
+    clone.classList.add('resized');
+    const diag = document.createElement('div');
+    diag.className = 'diagonal-line';
+    container.append(clone, diag);
+    target.append(container);
+    greyOutCharacter(name);
+  };
+
+  const bothReady = state.ready?.blue && state.ready?.red;
+  document.querySelectorAll('.ban-slot').forEach((slot, idx) => {
+    const isFirst = idx === 0;
+    slot.classList.toggle('locked-slot', !(bothReady && isFirst));
+    slot.classList.toggle('highlight', bothReady && isFirst);
+  });
+
+  Object.entries(state.picks || {}).forEach(([slot, name]) => applyPick(slot, name));
+  Array.isArray(state.bans?.blue) && state.bans.blue.forEach((name, i) => applyBan('blue', i, name));
+  Array.isArray(state.bans?.red) && state.bans.red.forEach((name, i) => applyBan('red', i, name));
 }
 
-function removePick(event) {
-    if (event.target.className.includes('pick-slot') && event.target.firstChild) {
-        const id = event.target.firstChild.id.replace('-clone', '');
-        removeGreyOutCharacter(id);
-        event.target.removeChild(event.target.firstChild);
+// ========== Timers ==========
+function startTurnTimerSequence() {
+  if (!window.RT?.isConnected()) {
+    // Solo mode: run local timer
+    clearInterval(turnInterval);
+
+    const display = document.getElementById('timerDisplay');
+    if (!display) return;
+
+    if (currentTurnIndex >= TURN_ORDER.length) {
+      display.innerText = "Draft Complete";
+      return;
     }
-}
 
-function clearDraft() {
-    const slots = document.querySelectorAll('.pick-slot, .ban-slot');
-    slots.forEach(slot => {
-        while (slot.firstChild) {
-            slot.removeChild(slot.firstChild);
-        }
-    });
-    document.querySelectorAll('.character-image.greyed-out').forEach(image => {
-        image.classList.remove('greyed-out');
-    });
-    resetAndStopTimer();
-}
+    let remaining = TURN_DURATION;
+    display.style.display = 'block';
+    display.innerText = remaining;
 
-function renameSide(side) {
-    if (side === 'blue') {
-        const newName = document.getElementById('blueSideInput').value;
-        document.getElementById('blueSideLabel').innerText = newName || 'Blue Side';
-    } else if (side === 'red') {
-        const newName = document.getElementById('redSideInput').value;
-        document.getElementById('redSideLabel').innerText = newName || 'Red Side';
-    }
-}
+    turnInterval = setInterval(() => {
+      remaining--;
+      display.innerText = remaining;
 
-function startTimer() {
-    clearInterval(timer);
-    timeLeft = 30;
-    document.getElementById('timerDisplay').innerText = timeLeft;
-    timer = setInterval(() => {
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            alert("Pick/Ban Dropped");
-        } else {
-            timeLeft--;
-            document.getElementById('timerDisplay').innerText = timeLeft;
-        }
+      if (remaining <= 0) {
+        clearInterval(turnInterval);
+        currentTurnIndex++;
+        startTurnTimerSequence(); // Recurse
+      }
     }, 1000);
+  }
 }
 
-function resetTimer() {
-    timeLeft = 30;
-    document.getElementById('timerDisplay').innerText = timeLeft;
+function initiateReadyCountdown() {
+  if (hasStartedDraft) return; // Prevent re-triggering
+
+  clearTimeout(readyCountdown);
+  readyInProgress = true;
+  let secondsLeft = 5;
+
+  const display = document.getElementById('startCountdown');
+  if (!display) return;
+
+  display.style.display = 'block';
+  display.innerText = `Draft starting in ${secondsLeft}...`;
+
+  function tick() {
+    secondsLeft--;
+
+    if (secondsLeft <= 0) {
+      display.style.display = 'none';
+      readyInProgress = false;
+      hasStartedDraft = true;
+      currentTurnIndex = 0;
+
+      const isSolo = !window.RT?.isConnected();
+
+      if (isSolo) {
+        resetTimerDisplay(TURN_DURATION); // optional: sets timer text
+        startTurnTimerSequence();         // runs local JS countdown
+      } else {
+        window.RT.startTimer(TURN_DURATION); // shared synced timer
+      }
+
+    } else {
+      display.innerText = `Draft starting in ${secondsLeft}...`;
+      readyCountdown = setTimeout(tick, 1000);
+    }
+  }
+
+  readyCountdown = setTimeout(tick, 1000);
 }
 
-function resetAndStopTimer() {
-    clearInterval(timer);
-    timeLeft = 30;
-    document.getElementById('timerDisplay').innerText = timeLeft;
+function cancelAllCountdowns() {
+  clearTimeout(readyCountdown);
+  clearInterval(turnInterval);
+  readyInProgress = false;
+  turnInProgress = false;
+  hasStartedDraft = false; // 🔁 allow restart
+  const display = document.getElementById('startCountdown');
+  if (display) display.style.display = 'none';
 }
 
-function setupPickAndBanListeners() {
-    const pickSlots = document.querySelectorAll('.pick-slot');
-    pickSlots.forEach(slot => {
-        slot.addEventListener('click', function() {
-            if (this.firstChild) {
-                removePick({ target: this });
-            }
-        });
+// ========== Shared Timer for Sync ==========
+function renderSharedTimer(state) {
+  const display = document.getElementById('timerDisplay');
+  if (!display || !state?.timer?.startAt || !state?.timer?.duration) {
+    display.style.display = 'none';
+    return;
+  }
+
+  const startAt = state.timer.startAt;
+  const duration = state.timer.duration;
+  const offset = state.__serverOffset || 0;
+
+  const endAt = startAt + duration * 1000;
+  const getNow = () => Date.now() + offset;
+
+  const update = () => {
+    const remaining = Math.max(0, endAt - getNow());
+    const seconds = Math.ceil(remaining / 1000);
+    display.innerText = seconds;
+    display.style.display = 'block';
+
+    if (remaining <= 0) clearInterval(timerInterval);
+  };
+
+  update(); // Show first frame
+  clearInterval(timerInterval);
+  timerInterval = setInterval(update, 200);
+}
+
+// ========== Drag & Drop ==========
+function drag(event) {
+  event.dataTransfer.setData('text', event.target.id);
+}
+
+function allowDrop(event) {
+  event.preventDefault(); // Required to allow dropping
+  event.dataTransfer.dropEffect = 'move'; // Suggest move effect
+
+  // Remove any existing drag-over styles
+  clearDragOverClasses();
+
+  // Add drag-over to current slot
+  event.currentTarget.classList.add('drag-over');
+}
+
+function clearDragOverClasses() {
+  document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
+    .forEach(el => el.classList.remove('drag-over'));
+}
+
+function dropBan(event, fromTouch = false, id = null) {
+  event.preventDefault();
+  const target = event.currentTarget;
+  target.classList.remove('drag-over');
+  const god = fromTouch ? id : event.dataTransfer.getData('text');
+
+  if (!target.classList.contains('ban-slot') || target.children.length || !god) return;
+
+  const isSolo = !window.RT?.isConnected();
+
+  if (!isSolo) {
+    if (!canEditTarget(target)) return;
+
+    const info = banIndexFromTarget(target);
+    if (!info) return;
+    
+    const mySideTeam = mySide();
+    if (info.team !== mySideTeam) return;
+
+    const state = window.__draftState;
+    const serverTurnIndex = state?.currentTurnIndex || 0;
+    const turn = TURN_ORDER[serverTurnIndex];
+    
+    const isBanPhase = serverTurnIndex < 6;
+    const isCorrectTeam = info.team === mySideTeam;
+    const isCorrectTurnType = turn && turn.type === 'ban' && turn.team === mySideTeam;
+    
+    if (!isBanPhase || !isCorrectTeam || !isCorrectTurnType) return;
+
+    console.log("✅ Ban dropped:", {
+      team: info.team,
+      index: info.index,
+      god: god,
+      turn: serverTurnIndex
     });
 
-    const banSlots = document.querySelectorAll('.ban-slot');
-    banSlots.forEach(slot => {
-        slot.addEventListener('click', function() {
-            if (this.firstChild) {
-                const id = this.firstChild.querySelector('.character-image').id.replace('-clone', '');
-                removeGreyOutCharacter(id);
-                this.removeChild(this.firstChild);
-            }
-        });
-    });
+    window.RT.setBan(info.team, info.index, god);
+    
+    // ADD THIS LINE to reset timer after ban
+    window.RT.resetTimer(20);
+    
+  } else {
+    // Solo mode code remains the same
+    const container = document.createElement('div');
+    container.className = 'banned-container';
+    const clone = createClonedElement(god);
+    clone.classList.add('resized');
+    const diag = document.createElement('div');
+    diag.className = 'diagonal-line';
+    container.append(clone, diag);
+    target.append(container);
+    greyOutCharacter(god);
+    resetTimerDisplay();
+    
+    currentTurnIndex++;
+    clearInterval(turnInterval);
+    startTurnTimerSequence();
+  }
 }
 
-// --- Touch / Pointer drag support for mobile ---
-let draggingId = null;
-let dragGhost = null;
+function dropPick(event, fromTouch = false, id = null) {
+  event.preventDefault();
+  const target = event.currentTarget;
+  target.classList.remove('drag-over');
+  const god = fromTouch ? id : event.dataTransfer.getData('text');
+
+  if (!target.classList.contains('pick-slot') || target.children.length || !god) return;
+
+  const isSolo = !window.RT?.isConnected();
+
+  if (!isSolo) {
+    if (!canEditTarget(target)) return;
+
+    // FIX: Use server's currentTurnIndex instead of local variable
+    const state = window.__draftState;
+    const serverTurnIndex = state?.currentTurnIndex || 0;
+    const turn = TURN_ORDER[serverTurnIndex];
+    
+    if (!turn || turn.type !== 'pick' || turn.team !== mySide()) return;
+
+    const slotId = slotIdFromTarget(target);
+    if (!slotId) return;
+
+    window.RT.setPick(slotId, god)
+      .then(() => console.log("✅ setPick succeeded:", slotId, god))
+      .catch(err => console.error("❌ setPick failed:", err));
+
+    window.RT.resetTimer(20);
+  } else {
+    // Solo mode code remains the same
+    target.append(createClonedElement(god));
+    greyOutCharacter(god);
+    resetTimerDisplay();
+    
+  //  currentTurnIndex++;
+  //  clearInterval(turnInterval);
+  //  startTurnTimerSequence();
+  }
+}
+
+function removePickHandler(eventTarget) {
+  const target = eventTarget;
+  if (!target.classList.contains('pick-slot') || !target.firstChild) return;
+  if (window.RT?.isConnected()) {
+    if (!canEditTarget(target)) return;
+    const slotId = slotIdFromTarget(target);
+    if (!slotId) return;
+    window.RT.clearPick(slotId);
+  } else {
+    const id = target.firstChild.id.replace('-clone', '');
+    removeGreyOutCharacter(id);
+    target.innerHTML = '';
+  }
+}
+
+function removeBanClick(event) {
+  const target = event.currentTarget;
+  if (!target.firstChild) return;
+  if (window.RT?.isConnected()) {
+    const info = banIndexFromTarget(target);
+    if (!info) return;
+    window.RT.clearBan(info.team, info.index);
+  } else {
+    const el = target.firstChild.querySelector('.character-image');
+    if (el) {
+      const id = el.id.replace('-clone', '');
+      removeGreyOutCharacter(id);
+    }
+    target.innerHTML = '';
+  }
+}
+
+// ========== Fallback Timer Logic ==========
+function startLocalTimer() {
+  clearInterval(timerInterval);
+  timeLeft = TURN_DURATION;
+  const display = document.getElementById('timerDisplay');
+  display.innerText = timeLeft;
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    display.innerText = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Pick/Ban Dropped");
+    }
+  }, 1000);
+}
+
+function resetTimerDisplay(duration = TURN_DURATION) {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  const display = document.getElementById('timerDisplay');
+  if (display) display.innerText = duration;
+  console.log("Resetting timer to:", duration, "at:", serverTimestamp());
+}
+
+// ========== Search & Filter ==========
+function filterGods() {
+  const text = document.getElementById('searchBox').value.toLowerCase();
+  document.querySelectorAll('.character-card').forEach(card => {
+    const name = card.querySelector('.character-name').innerText.toLowerCase();
+    const char = characters.find(c => c.name.toLowerCase() === name);
+    const roleOk = currentRoleFilter ? char.roles.includes(currentRoleFilter) : true;
+    card.style.display = (name.includes(text) && roleOk) ? 'inline-flex' : 'none';
+  });
+}
+
+function filterByRole(role) {
+  currentRoleFilter = currentRoleFilter === role ? null : role;
+  filterGods();
+}
+
+// ========== Lobby Controls ==========
+async function claimSidePrompt() {
+  if (!window.RT?.isConnected()) return;
+  const side = prompt("Claim side: type 'blue' or 'red'")?.trim().toLowerCase();
+  if (!['blue', 'red'].includes(side)) return;
+  const name = prompt(`Set ${side} team name (optional):`) || "";
+  await window.RT.claimSide(side, name);
+}
+
+function renameSide(side, name) {
+  if (window.RT?.isConnected()) {
+    window.RT.updateName(side, name);
+  }
+}
+
+async function setupLobbyUI() {
+  const createBtn = document.getElementById('createLobbyBtn');
+  const joinBtn = document.getElementById('joinLobbyBtn');
+  const codeInput = document.getElementById('joinCodeInput');
+  const status = document.getElementById('lobbyStatus');
+  const copyBtn = document.getElementById('copyLobbyBtn');
+  const blueInput = document.getElementById('blueSideInput');
+  const redInput = document.getElementById('redSideInput');
+  const readyControls = document.getElementById('readyControls');
+  const blueReadyBtn = document.getElementById('blueReadyBtn');
+  const redReadyBtn = document.getElementById('redReadyBtn');
+
+  createBtn.onclick = async () => {
+    try {
+      const code = await window.RT.createLobby();
+      status.textContent = `Lobby ${code}`;
+      copyBtn.style.display = 'inline-block';
+    } catch (e) {
+      alert(e.message || "Failed to create lobby");
+    }
+  };
+
+  joinBtn.onclick = async () => {
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) return alert("Enter a lobby code");
+    try {
+      await window.RT.joinLobby(code);
+      status.textContent = `Lobby ${code}`;
+      copyBtn.style.display = 'inline-block';
+    } catch (e) {
+      alert(e.message || "Failed to join lobby");
+    }
+  };
+
+  copyBtn.onclick = async () => {
+    const code = window.RT.currentCode();
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    status.textContent = `Lobby ${code} (copied)`;
+    setTimeout(() => status.textContent = `Lobby ${code}`, 1200);
+  };
+
+  blueInput.oninput = () => renameSide('blue', blueInput.value);
+  redInput.oninput = () => renameSide('red', redInput.value);
+  status.onclick = claimSidePrompt;
+
+  blueReadyBtn.onclick = () => {
+    if (mySide() === 'blue') {
+      const curr = window.__draftState?.ready?.blue;
+      window.RT.setReady('blue', !curr);
+    }
+  };
+  redReadyBtn.onclick = () => {
+    if (mySide() === 'red') {
+      const curr = window.__draftState?.ready?.red;
+      window.RT.setReady('red', !curr);
+    }
+  };
+
+  window.addEventListener('lobby:state', (e) => {
+    const state = e.detail;
+    window.__draftState = state;
+    const inLobby = window.RT?.isConnected();
+    const blueReady = !!state.ready?.blue;
+    const redReady = !!state.ready?.red;
+    const bothReady = blueReady && redReady;
+
+    readyControls.style.display = inLobby ? 'flex' : 'none';
+    blueReadyBtn.innerText = blueReady ? "Blue: ✅ Ready" : "Blue: ❌ Not Ready";
+    redReadyBtn.innerText = redReady ? "Red: ✅ Ready" : "Red: ❌ Not Ready";
+    blueReadyBtn.disabled = mySide() !== 'blue';
+    redReadyBtn.disabled = mySide() !== 'red';
+
+    if (bothReady && !readyInProgress && !turnInProgress) {
+      initiateReadyCountdown();
+    } else if (!bothReady) {
+      cancelAllCountdowns();
+    }
+  });
+}
+
+// ========== Initialization ==========
+document.addEventListener('DOMContentLoaded', () => {
+  loadCharacters();
+  setupPickBanDragClick();
+  setupLobbyUI();
+
+  window.addEventListener('lobby:state', (e) => {
+    const state = e.detail;
+    window.__draftState = state;
+    renderDraftFromState(state);
+    renderSharedTimer(state);
+
+  const serverTurnIndex = state.currentTurnIndex || 0;
+  highlightActiveSlot(serverTurnIndex);
+
+    if (state.names) {
+      document.getElementById('blueSideLabel').innerText = state.names.blue;
+      document.getElementById('redSideLabel').innerText = state.names.red;
+      document.getElementById('blueSideInput').value = state.names.blue;
+      document.getElementById('redSideInput').value = state.names.red;
+    }
+
+    const mine = mySide();
+    document.querySelectorAll('.blue-side .pick-slot, .bans.blue .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'blue')));
+    document.querySelectorAll('.red-side .pick-slot, .bans.red .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
+  });
+});
+
+// ========== Remaining Helper Functions ==========
+function loadCharacters() {
+  const container = document.getElementById('character-list');
+  container.innerHTML = '';
+  characters
+    .filter(c => c.roles.includes('Smite 2'))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(c => container.append(createCharacterCard(c)));
+  filterGods();
+}
+
+function setupPickBanDragClick() {
+  document.querySelectorAll('.pick-slot').forEach(slot => {
+    slot.addEventListener('dragover', allowDrop);
+    slot.addEventListener('dragleave', clearDragOverClasses);
+    slot.addEventListener('drop', dropPick);
+    slot.addEventListener('click', () => removePickHandler(slot));
+  });
+
+  document.querySelectorAll('.ban-slot').forEach(slot => {
+    slot.addEventListener('dragover', allowDrop);
+    slot.addEventListener('dragleave', clearDragOverClasses);
+    slot.addEventListener('drop', dropBan);
+    slot.addEventListener('click', removeBanClick);
+  });
+
+  document.getElementById('searchBox').addEventListener('keyup', filterGods);
+
+  document.querySelectorAll('.filter-icon').forEach(icon => {
+    icon.addEventListener('click', () => filterByRole(icon.dataset.role));
+  });
+
+  initTouchDrag();
+}
 
 function initTouchDrag() {
-  // Make every character image respond to pointer events
+  let draggingId = null;
+  let dragGhost = null;
+
+  function onPointerDown(e) {
+    const img = e.target.closest('.character-image');
+    if (!img || img.classList.contains('greyed-out')) return;
+    draggingId = img.id;
+    dragGhost = img.cloneNode(true);
+    Object.assign(dragGhost.style, {
+      position: 'fixed',
+      pointerEvents: 'none',
+      zIndex: '9999',
+      opacity: '0.85',
+      transform: 'translate(-50%, -50%) scale(1.05)',
+      boxShadow: '0 12px 22px rgba(0,0,0,.45)'
+    });
+    dragGhost.id = draggingId + '-ghost';
+    document.body.append(dragGhost);
+    positionGhost(e);
+  }
+
+  function onPointerMove(e) {
+    if (!dragGhost) return;
+    e.preventDefault();
+    positionGhost(e);
+    updateDragOverUI(e.clientX, e.clientY);
+  }
+
+  function onPointerUp(e) {
+    if (!dragGhost) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const target = el?.closest('.pick-slot, .ban-slot');
+    if (target && draggingId) {
+      if (target.classList.contains('pick-slot')) {
+        dropPick({ currentTarget: target, preventDefault: () => {}, dataTransfer: { getData: () => draggingId } }, true, draggingId);
+      } else {
+        dropBan({ currentTarget: target, preventDefault: () => {}, dataTransfer: { getData: () => draggingId } }, true, draggingId);
+      }
+    }
+    clearTouchDrag();
+  }
+
+  function positionGhost(e) {
+    dragGhost.style.left = e.clientX + 'px';
+    dragGhost.style.top = e.clientY + 'px';
+  }
+
+  function updateDragOverUI(x, y) {
+    document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over').forEach(n => n.classList.remove('drag-over'));
+    const slot = document.elementFromPoint(x, y)?.closest('.pick-slot, .ban-slot');
+    if (slot) slot.classList.add('drag-over');
+  }
+
+  function clearTouchDrag() {
+    document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over').forEach(n => n.classList.remove('drag-over'));
+    if (dragGhost) dragGhost.remove();
+    dragGhost = null;
+    draggingId = null;
+  }
+
   document.addEventListener('pointerdown', onPointerDown, { passive: true });
   document.addEventListener('pointermove', onPointerMove, { passive: false });
   document.addEventListener('pointerup', onPointerUp, { passive: true });
   document.addEventListener('pointercancel', onPointerUp, { passive: true });
 }
 
-function onPointerDown(e) {
-  const img = e.target.closest('.character-image');
-  if (!img || img.classList.contains('greyed-out')) return;
-  draggingId = img.id;
+function highlightActiveSlot(turnIndex) {
+  // Clear all existing highlights
+  document.querySelectorAll('.pick-slot, .ban-slot').forEach(slot => {
+    slot.classList.remove('active-turn', 'inactive-turn');
+  });
 
-  // Create a floating ghost preview
-  dragGhost = img.cloneNode(true);
-  dragGhost.style.position = 'fixed';
-  dragGhost.style.pointerEvents = 'none';
-  dragGhost.style.zIndex = '9999';
-  dragGhost.style.opacity = '0.85';
-  dragGhost.style.transform = 'translate(-50%, -50%) scale(1.05)';
-  dragGhost.style.boxShadow = '0 12px 22px rgba(0,0,0,.45)';
-  dragGhost.id = img.id + '-ghost';
-  document.body.appendChild(dragGhost);
+  if (turnIndex >= TURN_ORDER.length) return;
 
-  positionGhost(e);
-}
-
-function onPointerMove(e) {
-  if (!dragGhost) return;
-  e.preventDefault(); // prevent scrolling while dragging
-  positionGhost(e);
-
-  // Visual drag-over feedback
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  updateDragOver(el);
-}
-
-function onPointerUp(e) {
-  if (!dragGhost) return;
-
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const target = el?.closest('.pick-slot, .ban-slot');
-
-  if (target && draggingId) {
-    // Use existing logic but without dataTransfer
-    if (target.classList.contains('pick-slot')) {
-      dropPickFromTouch(target, draggingId);
-    } else if (target.classList.contains('ban-slot')) {
-      dropBanFromTouch(target, draggingId);
+  const turn = TURN_ORDER[turnIndex];
+  
+  if (turn.type === 'ban') {
+    // For bans, highlight the next empty slot for the correct team
+    const banSlots = [...document.querySelectorAll(`.bans.${turn.team} .ban-slot`)];
+    const emptySlot = banSlots.find(slot => !slot.children.length);
+    
+    if (emptySlot) {
+      emptySlot.classList.add('active-turn');
+      // Dim other ban slots
+      document.querySelectorAll('.ban-slot').forEach(slot => {
+        if (slot !== emptySlot) {
+          slot.classList.add('inactive-turn');
+        }
+      });
+    }
+  } else if (turn.type === 'pick') {
+    // For picks, determine which pick slot based on the order
+    const pickNumber = getPickNumber(turnIndex, turn.team);
+    const selector = turn.team === 'blue' ? '.blue-side .pick-slot' : '.red-side .pick-slot';
+    const pickSlots = [...document.querySelectorAll(selector)];
+    const targetSlot = pickSlots[pickNumber - 1];
+    
+    if (targetSlot && !targetSlot.children.length) {
+      targetSlot.classList.add('active-turn');
+      // Dim other pick slots
+      document.querySelectorAll('.pick-slot').forEach(slot => {
+        if (slot !== targetSlot) {
+          slot.classList.add('inactive-turn');
+        }
+      });
     }
   }
-
-  clearDragUI();
 }
 
-function positionGhost(e) {
-  dragGhost.style.left = e.clientX + 'px';
-  dragGhost.style.top = e.clientY + 'px';
+function getPickNumber(turnIndex, team) {
+  // Map turn index to pick slot number
+  const pickMap = {
+    6: { blue: 1, red: 1 },   // B1, R1
+    7: { blue: 1, red: 1 },
+    8: { blue: 1, red: 2 },   // R2
+    9: { blue: 2, red: 2 },   // B2
+    10: { blue: 3, red: 2 },  // B3
+    11: { blue: 3, red: 3 },  // R3
+    12: { blue: 3, red: 4 },  // R4
+    13: { blue: 4, red: 4 },  // B4
+    14: { blue: 5, red: 4 },  // B5
+    15: { blue: 5, red: 5 },  // R5
+  };
+  
+  return pickMap[turnIndex]?.[team] || 1;
 }
-
-function updateDragOver(el) {
-  document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
-    .forEach(n => n.classList.remove('drag-over'));
-  const slot = el?.closest?.('.pick-slot, .ban-slot');
-  if (slot) slot.classList.add('drag-over');
-}
-
-function clearDragUI() {
-  document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
-    .forEach(n => n.classList.remove('drag-over'));
-  dragGhost?.remove();
-  dragGhost = null;
-  draggingId = null;
-}
-
-// Touch-friendly drops (same behavior as dropPick/dropBan)
-function dropPickFromTouch(target, id) {
-  if (target.children.length === 0) {
-    target.appendChild(createClonedElement(id));
-    greyOutCharacter(id);
-    resetTimer();
-  }
-}
-
-function dropBanFromTouch(target, id) {
-  if (target.children.length === 0) {
-    const bannedContainer = document.createElement('div');
-    bannedContainer.className = 'banned-container';
-
-    const clonedElement = createClonedElement(id);
-    clonedElement.classList.add('resized');
-
-    const diagonalLine = document.createElement('div');
-    diagonalLine.className = 'diagonal-line';
-
-    bannedContainer.appendChild(clonedElement);
-    bannedContainer.appendChild(diagonalLine);
-    target.appendChild(bannedContainer);
-    greyOutCharacter(id);
-    resetTimer();
-  }
-}
-
-// Call this once DOM is ready, alongside your existing setup
-document.addEventListener('DOMContentLoaded', initTouchDrag);

@@ -1,114 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smite Draft Tool</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" href="Smite Icons/favicon.png" type="image/png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smite Draft Tool</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="Smite Icons/favicon.png" />
 </head>
 <body>
-    <div class="header">
-        <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
 
-        <!-- Centered Smite 2 Logo -->
-        <div class="logo-container">
-            <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
-        </div>
+  <!-- Header -->
+  <!-- Header with Rename Fields -->
+<div class="header">
+  <div class="blue-header-block">
+    <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
+    <input type="text" class="rename-input-header" id="blueSideInput" placeholder="Rename Blue Side" />
+  </div>
 
-        <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
-    </div>
-    
-    <div class="timer-container">
-        <button class="timer-button" onclick="startTimer()">Start Draft Timer</button>
-        <div id="timerDisplay" class="timer-display">30</div>
-    </div>
-    
-    <div class="rename-container">
-        <input
-            type="text"
-            class="rename-input"
-            id="blueSideInput"
-            placeholder="Rename Blue Side"
-            oninput="renameSide('blue')"
-        />
-        <input
-            type="text"
-            class="rename-input"
-            id="redSideInput"
-            placeholder="Rename Red Side"
-            oninput="renameSide('red')"
-        />
-    </div>
-    
-    <div class="bans-container">
-        <div class="bans blue">
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-        </div>
-        <div class="bans red">
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-            <div class="ban-slot" ondrop="dropBan(event)" ondragover="allowDrop(event)"></div>
-        </div>
-    </div>
-    
-    <div class="main-content">
-        <div class="side-container blue-side">
-            <div class="picks blue">
-                <div class="pick-label">B1</div>
-                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">B2</div>
-                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">B3</div>
-                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">B4</div>
-                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">B5</div>
-                <div class="pick-slot blue-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-            </div>
-        </div>
-        
-        <div class="middle-section">
-            <div class="search-and-filter">
-                <input type="text" id="searchBox" placeholder="Search for gods..." onkeyup="filterGods()" />
-                
-                <div class="filter-icons">
-                    <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" onclick="filterByRole('Carry')" />
-                    <img src="Smite Icons/support.png" alt="Support" class="filter-icon" onclick="filterByRole('Support')" />
-                    <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" onclick="filterByRole('Mid')" />
-                    <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" onclick="filterByRole('Jungle')" />
-                    <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" onclick="filterByRole('Solo')" />
-                </div>
-            </div>
-            
-            <div id="character-list" class="scroll-container"></div>
-        </div>
+  <div class="logo-container">
+    <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
+  </div>
 
-        <div class="side-container red-side">
-            <div class="picks red">
-                <div class="pick-label">R1</div>
-                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">R2</div>
-                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">R3</div>
-                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">R4</div>
-                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-                <div class="pick-label">R5</div>
-                <div class="pick-slot red-slot" onclick="removePick(event)" ondrop="dropPick(event)" ondragover="allowDrop(event)"></div>
-            </div>
-        </div>
+  <div class="red-header-block">
+    <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
+    <input type="text" class="rename-input-header" id="redSideInput" placeholder="Rename Red Side" />
+  </div>
+</div>
+
+
+  <!-- Lobby + Rename -->
+  <div class="lobby-bar">
+    <button id="createLobbyBtn" class="btn">Create Lobby</button>
+    <input id="joinCodeInput" class="code-input" placeholder="Code (e.g., AB123)" maxlength="6" />
+    <button id="joinLobbyBtn" class="btn">Join</button>
+    <span id="lobbyStatus" class="lobby-status">Not connected</span>
+    <button id="copyLobbyBtn" class="btn secondary" style="display: none;">Copy Code</button>
+    </div>
+  </div>
+
+  <!-- Ready Section -->
+  <div class="ready-wrapper" id="readyControls" style="display: none;">
+    <div class="ready-heading">Ready Up</div>
+    <div id="timerDisplay" class="timer-display" style="display: none;"></div>
+    <div class="ready-buttons">
+      <div id="startCountdown" class="start-countdown" style="display: none;">Draft starting in 5...</div>
+      <button id="blueReadyBtn" class="ready-btn blue">Blue: ❌ Not Ready</button>
+      <button id="redReadyBtn" class="ready-btn red">Red: ❌ Not Ready</button>
+    </div>
+  </div>
+
+  <!-- Bans -->
+  <div class="bans-container">
+    <div class="bans blue">
+      <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+    </div>
+    <div class="bans red">
+      <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+    </div>
+  </div>
+
+  <!-- Main Draft Content -->
+  <div class="main-content">
+    <!-- Blue Picks -->
+    <div class="side-container blue-side">
+      <div class="picks blue">
+        <div class="pick-label">B1</div><div class="pick-slot blue-slot"></div>
+        <div class="pick-label">B2</div><div class="pick-slot blue-slot"></div>
+        <div class="pick-label">B3</div><div class="pick-slot blue-slot"></div>
+        <div class="pick-label">B4</div><div class="pick-slot blue-slot"></div>
+        <div class="pick-label">B5</div><div class="pick-slot blue-slot"></div>
+      </div>
     </div>
 
-    <!-- Bottom-right credit -->
-    <div class="made-by-footer">V1.0 Made by @TrentUDK</div>
-    
-    <script src="app.js"></script>
+    <!-- Middle: Search + Character Cards -->
+    <div class="middle-section">
+      <div class="search-and-filter">
+        <input type="text" id="searchBox" placeholder="Search for gods..." />
+        <div class="filter-icons">
+          <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" data-role="Carry" />
+          <img src="Smite Icons/support.png" alt="Support" class="filter-icon" data-role="Support" />
+          <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" data-role="Mid" />
+          <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" data-role="Jungle" />
+          <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" data-role="Solo" />
+        </div>
+      </div>
+      <div id="character-list" class="scroll-container"></div>
+    </div>
+
+    <!-- Red Picks -->
+    <div class="side-container red-side">
+      <div class="picks red">
+        <div class="pick-label">R1</div><div class="pick-slot red-slot"></div>
+        <div class="pick-label">R2</div><div class="pick-slot red-slot"></div>
+        <div class="pick-label">R3</div><div class="pick-slot red-slot"></div>
+        <div class="pick-label">R4</div><div class="pick-slot red-slot"></div>
+        <div class="pick-label">R5</div><div class="pick-slot red-slot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="made-by-footer">V1.0 Made by @TrentUDK</div>
+
+  <!-- Scripts -->
+  <script type="module" src="realtime.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
