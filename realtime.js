@@ -52,25 +52,25 @@ const RT = {
   currentCode: () => currentCode,
   getClientId: () => clientId,
 
-  async createLobby() {
-    currentCode = genCode();
-    await set(ref(db, `lobbies/${currentCode}`), {
-      state: {
-        names: { blue: "Blue Side", red: "Red Side" },
-        owners: { blue: clientId, red: null },
-        timer: { duration: 20, startAt: null },
-        picks: {},
-        bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
-        ready: { blue: false, red: false },
-        currentTurnIndex: 0,
-        updatedAt: serverTimestamp()
-      }
-    });
+async createLobby() {
+  currentCode = genCode();
+  await set(ref(db, `lobbies/${currentCode}`), {
+    state: {
+      names: { blue: "Blue Side", red: "Red Side" },
+      owners: { blue: clientId, red: null },  // Creator gets blue
+      timer: { duration: 20, startAt: null },
+      picks: {},
+      bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
+      ready: { blue: false, red: false },
+      currentTurnIndex: 0,
+      updatedAt: serverTimestamp()
+    }
+  });
 
-    listenToState(currentCode);
-    await RT.claimSide("blue", "Blue Side");
-    return currentCode;
-  },
+  listenToState(currentCode);
+  // Creator already owns blue from the initial state
+  return currentCode;
+},
 
   async joinLobby(code) {
     currentCode = code;

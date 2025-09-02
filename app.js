@@ -661,18 +661,35 @@ async function setupLobbyUI() {
   redInput.oninput = () => renameSide('red', redInput.value);
   status.onclick = claimSidePrompt;
 
-  blueReadyBtn.onclick = () => {
-    if (mySide() === 'blue') {
-      const curr = window.__draftState?.ready?.blue;
-      window.RT.setReady('blue', !curr);
-    }
-  };
-  redReadyBtn.onclick = () => {
-    if (mySide() === 'red') {
-      const curr = window.__draftState?.ready?.red;
-      window.RT.setReady('red', !curr);
-    }
-  };
+blueReadyBtn.onclick = async () => {
+  const state = window.__draftState;
+  const side = mySide();
+  
+  if (!side && !state?.owners?.blue) {
+    // Claim blue if unclaimed
+    await window.RT.claimSide('blue', 'Blue Side');
+  }
+  
+  if (mySide() === 'blue') {
+    const curr = state?.ready?.blue;
+    window.RT.setReady('blue', !curr);
+  }
+};
+
+redReadyBtn.onclick = async () => {
+  const state = window.__draftState;
+  const side = mySide();
+  
+  if (!side && !state?.owners?.red) {
+    // Claim red if unclaimed
+    await window.RT.claimSide('red', 'Red Side');
+  }
+  
+  if (mySide() === 'red') {
+    const curr = state?.ready?.red;
+    window.RT.setReady('red', !curr);
+  }
+};
 
   window.addEventListener('lobby:state', (e) => {
     const state = e.detail;
