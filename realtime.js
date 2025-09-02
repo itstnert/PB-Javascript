@@ -57,7 +57,7 @@ async createLobby() {
   await set(ref(db, `lobbies/${currentCode}`), {
     state: {
       names: { blue: "Blue Side", red: "Red Side" },
-      owners: { blue: clientId, red: null },  // Creator gets blue
+      owners: { blue: clientId, red: null },
       timer: { duration: 20, startAt: null },
       picks: {},
       bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
@@ -68,8 +68,18 @@ async createLobby() {
   });
 
   listenToState(currentCode);
-  // Creator already owns blue from the initial state
   return currentCode;
+},
+
+async joinLobby(code) {
+  currentCode = code;
+  listenToState(code);
+  
+  // Wait for state to load
+  await new Promise(resolve => setTimeout(resolve, 200));
+  
+  // Automatically claim red side
+  await RT.claimSide("red", "Red Side");
 },
 
   async joinLobby(code) {

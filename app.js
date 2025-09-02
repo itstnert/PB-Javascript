@@ -601,14 +601,6 @@ function filterByRole(role) {
 }
 
 // ========== Lobby Controls ==========
-async function claimSidePrompt() {
-  if (!window.RT?.isConnected()) return;
-  const side = prompt("Claim side: type 'blue' or 'red'")?.trim().toLowerCase();
-  if (!['blue', 'red'].includes(side)) return;
-  const name = prompt(`Set ${side} team name (optional):`) || "";
-  await window.RT.claimSide(side, name);
-}
-
 function renameSide(side, name) {
   if (window.RT?.isConnected()) {
     window.RT.updateName(side, name);
@@ -627,15 +619,20 @@ async function setupLobbyUI() {
   const blueReadyBtn = document.getElementById('blueReadyBtn');
   const redReadyBtn = document.getElementById('redReadyBtn');
 
-  createBtn.onclick = async () => {
-    try {
-      const code = await window.RT.createLobby();
-      status.textContent = `Lobby ${code}`;
-      copyBtn.style.display = 'inline-block';
-    } catch (e) {
-      alert(e.message || "Failed to create lobby");
-    }
-  };
+createBtn.onclick = async () => {
+  try {
+    const code = await window.RT.createLobby();
+    status.textContent = `Lobby ${code}`;
+    copyBtn.style.display = 'inline-block';
+    
+    // Hide join controls after creating
+    joinBtn.style.display = 'none';
+    codeInput.style.display = 'none';
+    createBtn.style.display = 'none';
+  } catch (e) {
+    alert(e.message || "Failed to create lobby");
+  }
+};
 
   joinBtn.onclick = async () => {
     const code = codeInput.value.trim().toUpperCase();
@@ -659,34 +656,17 @@ async function setupLobbyUI() {
 
   blueInput.oninput = () => renameSide('blue', blueInput.value);
   redInput.oninput = () => renameSide('red', redInput.value);
-  status.onclick = claimSidePrompt;
 
-blueReadyBtn.onclick = async () => {
-  const state = window.__draftState;
-  const side = mySide();
-  
-  if (!side && !state?.owners?.blue) {
-    // Claim blue if unclaimed
-    await window.RT.claimSide('blue', 'Blue Side');
-  }
-  
+blueReadyBtn.onclick = () => {
   if (mySide() === 'blue') {
-    const curr = state?.ready?.blue;
+    const curr = window.__draftState?.ready?.blue;
     window.RT.setReady('blue', !curr);
   }
 };
 
-redReadyBtn.onclick = async () => {
-  const state = window.__draftState;
-  const side = mySide();
-  
-  if (!side && !state?.owners?.red) {
-    // Claim red if unclaimed
-    await window.RT.claimSide('red', 'Red Side');
-  }
-  
+redReadyBtn.onclick = () => {
   if (mySide() === 'red') {
-    const curr = state?.ready?.red;
+    const curr = window.__draftState?.ready?.red;
     window.RT.setReady('red', !curr);
   }
 };
