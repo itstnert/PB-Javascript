@@ -73,23 +73,30 @@ async createLobby() {
 },
 
   async joinLobby(code) {
-    currentCode = code;
-    listenToState(code);
-    await RT.claimSide("red", "Red Side");
-  },
-
-  async setPick(slot, god) {
-    if (!currentCode || !slot || typeof god !== "string") return;
-    if (!/^[BR][1-5]$/.test(slot)) return console.error("Invalid slot:", slot);
-
-    const updates = {
-      [`lobbies/${currentCode}/state/picks/${slot}`]: god,
-      [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-
-    await update(ref(db), updates);
-  },
+  currentCode = code;
+  listenToState(code);
+  
+  // Wait for state to load
+  await new Promise(resolve => setTimeout(resolve, 200));
+  
+  const state = window.__draftState;
+  if (state) {
+    const myId = clientId;
+    
+    // Check if I already own a side
+    if (state.owners?.blue === myId || state.owners?.red === myId) {
+      return; // Already claimed a side
+    }
+    
+    // Auto-claim red if it's available
+    if (!state.owners?.red) {
+      await RT.claimSide("red", "Red Side");
+    } else if (!state.owners?.blue) {
+      // If red is taken but blue is somehow free, claim blue
+      await RT.claimSide("blue", "Blue Side");
+    }
+  }
+},
 
   async clearPick(slot) {
     if (!currentCode || !slot) return;
@@ -162,15 +169,23 @@ async createLobby() {
     await update(ref(db), updates);
   },
 
-  async claimSide(side, name) {
-    if (!currentCode || !["blue", "red"].includes(side)) return;
-    const updates = {
-      [`lobbies/${currentCode}/state/owners/${side}`]: clientId,
-      [`lobbies/${currentCode}/state/names/${side}`]: name,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
-  },
+async claimSide(side, name) {
+  if (!currentCode || !["blue", "red"].includes(side)) return;
+  
+  // First check if this side is already taken
+  const stateSnap = await get(ref(db, `lobbies/${currentCode}/state/owners/${side}`));
+  if (stateSnap.val() && stateSnap.val() !== clientId) {
+    console.log(`${side} side already claimed by another player`);
+    return;
+  }
+  
+  const updates = {
+    [`lobbies/${currentCode}/state/owners/${side}`]: clientId,
+    [`lobbies/${currentCode}/state/names/${side}`]: name,
+    [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
+  };
+  await update(ref(db), updates);
+},
 
   async resetTimer(duration = 20) {
     if (!currentCode) return;
