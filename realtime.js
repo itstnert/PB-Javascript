@@ -148,6 +148,19 @@ async joinLobby(code) {
     }
   },
 
+    async setPick(slot, god) {
+    if (!currentCode || !slot || typeof god !== "string") return;
+    if (!/^[BR][1-5]$/.test(slot)) return console.error("Invalid slot:", slot);
+
+    const updates = {
+      [`lobbies/${currentCode}/state/picks/${slot}`]: god,
+      [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
+      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
+    };
+
+    await update(ref(db), updates);
+  },
+
   async clearBan(team, index) {
     if (!currentCode) return;
     if (!["blue", "red"].includes(team)) return;
