@@ -634,17 +634,22 @@ createBtn.onclick = async () => {
   }
 };
 
-  joinBtn.onclick = async () => {
-    const code = codeInput.value.trim().toUpperCase();
-    if (!code) return alert("Enter a lobby code");
-    try {
-      await window.RT.joinLobby(code);
-      status.textContent = `Lobby ${code}`;
-      copyBtn.style.display = 'inline-block';
-    } catch (e) {
-      alert(e.message || "Failed to join lobby");
-    }
-  };
+joinBtn.onclick = async () => {
+  const code = codeInput.value.trim().toUpperCase();
+  if (!code) return alert("Enter a lobby code");
+  try {
+    await window.RT.joinLobby(code);
+    status.textContent = `Lobby ${code}`;
+    copyBtn.style.display = 'inline-block';
+    
+    // Hide join controls after joining
+    joinBtn.style.display = 'none';
+    codeInput.style.display = 'none';
+    createBtn.style.display = 'none';
+  } catch (e) {
+    alert(e.message || "Failed to join lobby");
+  }
+};
 
   copyBtn.onclick = async () => {
     const code = window.RT.currentCode();
