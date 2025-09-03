@@ -637,6 +637,7 @@ createBtn.onclick = async () => {
     const code = await window.RT.createLobby();
     status.textContent = `Lobby ${code}`;
     copyBtn.style.display = 'inline-block';
+    readyControls.style.display = 'block'; // Add this line
     
     // Hide join controls after creating
     joinBtn.style.display = 'none';
@@ -674,6 +675,7 @@ joinBtn.onclick = async () => {
     await window.RT.joinLobby(code);
     status.textContent = `Lobby ${code}`;
     copyBtn.style.display = 'inline-block';
+    readyControls.style.display = 'block'; // Add this line
     
     // Hide join controls after joining
     joinBtn.style.display = 'none';
