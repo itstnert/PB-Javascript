@@ -37,6 +37,35 @@
     <button id="copyLobbyBtn" class="btn secondary" style="display: none;">Copy Code</button>
     </div>
   </div>
+<!-- Add after lobby-bar -->
+<div class="spectator-controls" id="spectatorControls" style="display: none;">
+  <button id="joinSpectatorBtn" class="btn spectator">Join as Spectator</button>
+  <div class="spectator-list" id="spectatorList"></div>
+</div>
+
+<!-- Spectator overlay for full-screen view -->
+<div class="spectator-overlay" id="spectatorOverlay" style="display: none;">
+  <div class="spectator-header">
+    <div class="team-info blue">
+      <div class="team-name" id="specBlueTeam">Blue Team</div>
+      <div class="team-score">1</div>
+    </div>
+    <div class="tournament-info">
+      <div class="tournament-title">SMITE PRIME</div>
+      <div class="match-title">Draft Phase</div>
+    </div>
+    <div class="team-info red">
+      <div class="team-score">1</div>
+      <div class="team-name" id="specRedTeam">Red Team</div>
+    </div>
+  </div>
+  
+  <div class="spectator-draft-area">
+    <!-- Mirror your existing draft layout but read-only -->
+  </div>
+  
+  <button class="exit-spectator" id="exitSpectator">Exit Spectator Mode</button>
+</div>
 
   <!-- Ready Section -->
   <div class="ready-wrapper" id="readyControls" style="display: none;">

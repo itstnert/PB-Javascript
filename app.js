@@ -439,6 +439,14 @@ function dropBan(event, fromTouch = false, id = null) {
   const isSolo = !window.RT?.isConnected();
 
   if (!isSolo) {
+    // Check if both teams are ready before allowing any drops
+    const state = window.__draftState;
+    const bothReady = state?.ready?.blue && state?.ready?.red;
+    if (!bothReady) {
+      console.log("❌ Both teams must be ready before draft can start");
+      return; // Block the drop
+    }
+
     if (!canEditTarget(target)) return;
 
     const info = banIndexFromTarget(target);
@@ -447,7 +455,6 @@ function dropBan(event, fromTouch = false, id = null) {
     const mySideTeam = mySide();
     if (info.team !== mySideTeam) return;
 
-    const state = window.__draftState;
     const serverTurnIndex = state?.currentTurnIndex || 0;
     const turn = TURN_ORDER[serverTurnIndex];
     
@@ -465,8 +472,6 @@ function dropBan(event, fromTouch = false, id = null) {
     });
 
     window.RT.setBan(info.team, info.index, god);
-    
-    // ADD THIS LINE to reset timer after ban
     window.RT.resetTimer(20);
     
   } else {
@@ -499,10 +504,16 @@ function dropPick(event, fromTouch = false, id = null) {
   const isSolo = !window.RT?.isConnected();
 
   if (!isSolo) {
+    // Check if both teams are ready before allowing any drops
+    const state = window.__draftState;
+    const bothReady = state?.ready?.blue && state?.ready?.red;
+    if (!bothReady) {
+      console.log("❌ Both teams must be ready before draft can start");
+      return; // Block the drop
+    }
+
     if (!canEditTarget(target)) return;
 
-    // FIX: Use server's currentTurnIndex instead of local variable
-    const state = window.__draftState;
     const serverTurnIndex = state?.currentTurnIndex || 0;
     const turn = TURN_ORDER[serverTurnIndex];
     
@@ -521,10 +532,6 @@ function dropPick(event, fromTouch = false, id = null) {
     target.append(createClonedElement(god));
     greyOutCharacter(god);
     resetTimerDisplay();
-    
-  //  currentTurnIndex++;
-  //  clearInterval(turnInterval);
-  //  startTurnTimerSequence();
   }
 }
 
@@ -637,7 +644,27 @@ createBtn.onclick = async () => {
 joinBtn.onclick = async () => {
   const code = codeInput.value.trim().toUpperCase();
   if (!code) return alert("Enter a lobby code");
+  
   try {
+    // Use the RT function to check lobby state
+    const state = await window.RT.checkLobbyState(code);
+    
+    if (!state) {
+      alert("Lobby not found");
+      return;
+    }
+    
+    // Check if both team slots are taken
+    if (state.owners?.blue && state.owners?.red) {
+      // Lobby is full, offer spectator mode
+      if (confirm("This lobby is full. Would you like to join as a spectator?")) {
+        await window.RT.joinAsSpectator(code);
+        showSpectatorMode();
+      }
+      return;
+    }
+    
+    // Normal join if there's space
     await window.RT.joinLobby(code);
     status.textContent = `Lobby ${code}`;
     copyBtn.style.display = 'inline-block';
@@ -646,6 +673,7 @@ joinBtn.onclick = async () => {
     joinBtn.style.display = 'none';
     codeInput.style.display = 'none';
     createBtn.style.display = 'none';
+    
   } catch (e) {
     alert(e.message || "Failed to join lobby");
   }
@@ -676,26 +704,51 @@ redReadyBtn.onclick = () => {
   }
 };
 
-  window.addEventListener('lobby:state', (e) => {
-    const state = e.detail;
-    window.__draftState = state;
-    const inLobby = window.RT?.isConnected();
-    const blueReady = !!state.ready?.blue;
-    const redReady = !!state.ready?.red;
-    const bothReady = blueReady && redReady;
+window.addEventListener('lobby:state', (e) => {
+  const state = e.detail;
+  window.__draftState = state;
+  const inLobby = window.RT?.isConnected();
+  const blueReady = !!state.ready?.blue;
+  const redReady = !!state.ready?.red;
+  const bothReady = blueReady && redReady;
 
-    readyControls.style.display = inLobby ? 'flex' : 'none';
-    blueReadyBtn.innerText = blueReady ? "Blue: ✅ Ready" : "Blue: ❌ Not Ready";
-    redReadyBtn.innerText = redReady ? "Red: ✅ Ready" : "Red: ❌ Not Ready";
-    blueReadyBtn.disabled = mySide() !== 'blue';
-    redReadyBtn.disabled = mySide() !== 'red';
+  readyControls.style.display = inLobby ? 'flex' : 'none';
+  blueReadyBtn.innerText = blueReady ? "Blue: ✅ Ready" : "Blue: ❌ Not Ready";
+  redReadyBtn.innerText = redReady ? "Red: ✅ Ready" : "Red: ❌ Not Ready";
+  blueReadyBtn.disabled = mySide() !== 'blue';
+  redReadyBtn.disabled = mySide() !== 'red';
 
-    if (bothReady && !readyInProgress && !turnInProgress) {
-      initiateReadyCountdown();
-    } else if (!bothReady) {
-      cancelAllCountdowns();
+  // Add side ownership visual indicators
+  updateSideOwnershipIndicators();
+
+  if (bothReady && !readyInProgress && !turnInProgress) {
+    initiateReadyCountdown();
+  } else if (!bothReady) {
+    cancelAllCountdowns();
+  }
+});
+}
+
+function updateSideOwnershipIndicators() {
+  const mine = mySide();
+  
+  // Fix: Target the side containers directly (they have both classes)
+  const blueSideContainer = document.querySelector('.side-container.blue-side');
+  const redSideContainer = document.querySelector('.side-container.red-side');
+  
+  // Clear existing indicators from both sides
+  [blueSideContainer, redSideContainer].forEach(container => {
+    if (container) {
+      container.classList.remove('my-side', 'blue', 'red');
     }
   });
+  
+  // Add indicator to the side the player controls
+  if (mine === 'blue' && blueSideContainer) {
+    blueSideContainer.classList.add('my-side', 'blue');
+  } else if (mine === 'red' && redSideContainer) {
+    redSideContainer.classList.add('my-side', 'red');
+  }
 }
 
 // ========== Initialization ==========
@@ -737,6 +790,20 @@ function loadCharacters() {
     .sort((a, b) => a.name.localeCompare(b.name))
     .forEach(c => container.append(createCharacterCard(c)));
   filterGods();
+}
+// Add this function anywhere in your app.js
+function showSpectatorMode() {
+  alert("Spectator mode activated! You can now watch the draft.");
+  
+  // Update lobby status
+  const status = document.getElementById('lobbyStatus');
+  status.textContent = `Watching ${window.RT.currentCode()}`;
+  
+  // Hide join controls - fix the ID here
+  document.getElementById('joinLobbyBtn').style.display = 'none'; // Changed from 'joinBtn'
+  document.getElementById('joinCodeInput').style.display = 'none';
+  document.getElementById('createLobbyBtn').style.display = 'none';
+  document.getElementById('copyLobbyBtn').style.display = 'inline-block';
 }
 
 function setupPickBanDragClick() {

@@ -54,10 +54,12 @@ const RT = {
 
 async createLobby() {
   currentCode = genCode();
+// In realtime.js, update your lobby creation structure
   await set(ref(db, `lobbies/${currentCode}`), {
     state: {
       names: { blue: "Blue Side", red: "Red Side" },
       owners: { blue: clientId, red: null },
+      spectators: {}, // Add this line
       timer: { duration: 20, startAt: null },
       picks: {},
       bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
@@ -65,8 +67,8 @@ async createLobby() {
       currentTurnIndex: 0,
       updatedAt: serverTimestamp()
     }
-  });
-
+      
+});
   listenToState(currentCode);
   return currentCode;
 },
@@ -106,6 +108,32 @@ async joinLobby(code) {
       await RT.claimSide("blue", "Blue Side");
     }
   }
+},
+  // Add this function - make sure it's properly formatted
+  async checkLobbyState(code) {
+    try {
+      const lobbyRef = ref(db, `lobbies/${code}/state`);
+      const snap = await get(lobbyRef);
+      return snap.val();
+    } catch (error) {
+      console.error("Error checking lobby state:", error);
+      return null;
+    }
+  },
+
+async joinAsSpectator(code, spectatorName = "Spectator") {
+  currentCode = code;
+  
+  const updates = {
+    [`lobbies/${code}/state/spectators/${clientId}`]: spectatorName,
+    [`lobbies/${code}/state/updatedAt`]: serverTimestamp()
+  };
+  
+  await update(ref(db), updates);
+  listenToState(code);
+  
+  // Set spectator mode flag
+  window.__isSpectator = true;
 },
 
   async clearPick(slot) {
