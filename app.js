@@ -169,6 +169,9 @@ const TURN_ORDER = [
 
 // ========== Utility Functions ==========
 function mySide() {
+  // If spectator, don't have a side
+  if (window.__isSpectator) return null;
+  
   const state = window.__draftState;
   if (!state || !window.RT?.isConnected()) return null;
   const me = window.RT.getClientId();
@@ -178,6 +181,9 @@ function mySide() {
 }
 
 function canEditTarget(target) {
+  // Spectators can't edit anything
+  if (window.__isSpectator) return false;
+  
   const side = mySide();
   if (!side) return false;
   if (target.closest('.blue-side') || target.closest('.bans.blue')) return side === 'blue';
@@ -730,9 +736,8 @@ window.addEventListener('lobby:state', (e) => {
 }
 
 function updateSideOwnershipIndicators() {
-  const mine = mySide();
+  const mine = mySide(); // This will return null for spectators
   
-  // Fix: Target the side containers directly (they have both classes)
   const blueSideContainer = document.querySelector('.side-container.blue-side');
   const redSideContainer = document.querySelector('.side-container.red-side');
   
@@ -743,11 +748,13 @@ function updateSideOwnershipIndicators() {
     }
   });
   
-  // Add indicator to the side the player controls
-  if (mine === 'blue' && blueSideContainer) {
-    blueSideContainer.classList.add('my-side', 'blue');
-  } else if (mine === 'red' && redSideContainer) {
-    redSideContainer.classList.add('my-side', 'red');
+  // Only add indicators if not a spectator
+  if (!window.__isSpectator) {
+    if (mine === 'blue' && blueSideContainer) {
+      blueSideContainer.classList.add('my-side', 'blue');
+    } else if (mine === 'red' && redSideContainer) {
+      redSideContainer.classList.add('my-side', 'red');
+    }
   }
 }
 

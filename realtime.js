@@ -121,19 +121,20 @@ async joinLobby(code) {
     }
   },
 
-async joinAsSpectator(code, spectatorName = "Spectator") {
-  currentCode = code;
-  
-  const updates = {
-    [`lobbies/${code}/state/spectators/${clientId}`]: spectatorName,
-    [`lobbies/${code}/state/updatedAt`]: serverTimestamp()
-  };
-  
-  await update(ref(db), updates);
-  listenToState(code);
-  
-  // Set spectator mode flag
-  window.__isSpectator = true;
+  async joinAsSpectator(code, spectatorName = "Spectator") {
+    currentCode = code;
+    
+    // Add to spectators list instead of claiming a side
+    const updates = {
+      [`lobbies/${code}/state/spectators/${clientId}`]: spectatorName,
+      [`lobbies/${code}/state/updatedAt`]: serverTimestamp()
+    };
+    
+    await update(ref(db), updates);
+    listenToState(code);
+    
+    // Set spectator flag - this prevents side claiming
+    window.__isSpectator = true;
 },
 
   async clearPick(slot) {
