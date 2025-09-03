@@ -475,85 +475,474 @@ body::before {
     var(--aura);
 }
 
+/* Updated Spectator Mode Styles - Professional Design */
+
+/* Updated Spectator Mode Styles - Professional Design */
+/* Updated Spectator Mode Styles - Professional Clean Design */
+
+/* Updated Spectator Mode Styles - Professional Clean Design */
+
 .spectator-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #0a0d1a 0%, #111426 100%);
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(59,130,246,0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(239,68,68,0.06) 0%, transparent 45%),
+    linear-gradient(135deg, #0a0d1a 0%, #111426 50%, #0d1117 100%);
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
 }
 
-.spectator-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 20px;
+/* Tournament Header - Cleaner Design */
+.tournament-header {
   background: linear-gradient(90deg, 
-    rgba(59,130,246,0.2) 0%, 
-    rgba(0,0,0,0.8) 50%, 
-    rgba(239,68,68,0.2) 100%);
+    rgba(59,130,246,0.12) 0%, 
+    rgba(10,13,26,0.95) 25%,
+    rgba(10,13,26,0.98) 75%,
+    rgba(239,68,68,0.12) 100%);
+  padding: 20px 40px;
+  display: grid;
+  grid-template-columns: 1fr 280px 1fr;
+  align-items: center;
+  border-bottom: 2px solid rgba(201,160,64,0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
 }
 
 .team-info {
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-size: 24px;
-  font-weight: 700;
+  gap: 16px;
+  font-weight: 600;
 }
 
 .team-info.blue {
-  color: var(--blue);
   justify-content: flex-start;
+  color: #60a5fa;
+  text-shadow: 0 2px 6px rgba(59,130,246,0.3);
 }
 
 .team-info.red {
-  color: var(--red);
   justify-content: flex-end;
+  color: #f87171;
+  text-shadow: 0 2px 6px rgba(239,68,68,0.3);
+}
+
+.team-name {
+  font-size: clamp(18px, 2.8vw, 26px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
 }
 
 .team-score {
-  background: var(--gold);
-  color: var(--bg-obsidian);
-  padding: 8px 16px;
-  border-radius: var(--r-md);
-  min-width: 40px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0a0d1a;
+  padding: 10px 18px;
+  border-radius: 8px;
+  min-width: 50px;
   text-align: center;
+  font-size: clamp(20px, 3.2vw, 28px);
+  font-weight: 800;
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .tournament-info {
   text-align: center;
   color: var(--gold);
+  background: linear-gradient(135deg, rgba(201,160,64,0.08), rgba(181,140,54,0.04));
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(201,160,64,0.15);
 }
 
 .tournament-title {
-  font-size: 18px;
+  font-size: clamp(16px, 2.4vw, 22px);
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+  margin-bottom: 4px;
+  color: #fbbf24;
+  text-transform: uppercase;
 }
 
-.match-title {
-  font-size: 14px;
-  opacity: 0.8;
+.match-phase {
+  font-size: clamp(12px, 1.8vw, 16px);
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  color: rgba(201,160,64,0.7);
 }
 
-.spectator-draft-area {
+/* Main Spectator Draft Area */
+.spectator-draft {
+  flex: 1;
   padding: 20px;
-  height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   overflow-y: auto;
 }
 
+/* Timer Section - Compact and Above Bans */
+.timer-section {
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.08));
+  border: 2px solid rgba(251,191,36,0.4);
+  border-radius: 12px;
+  padding: 12px 20px;
+  text-align: center;
+  margin: 0 auto 16px;
+  max-width: 200px;
+  box-shadow: 
+    0 4px 16px rgba(0,0,0,0.3),
+    0 0 16px rgba(251,191,36,0.15);
+}
+
+.timer-label {
+  font-size: 11px;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.timer-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: #fbbf24;
+  text-shadow: 0 0 16px rgba(251,191,36,0.6);
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  line-height: 1;
+}
+
+.phase-indicator {
+  font-size: 12px;
+  color: rgba(251,191,36,0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Bans Section - Streamlined */
+.bans-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(30,34,48,0.3), rgba(22,26,40,0.15));
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+}
+
+.ban-team.blue {
+  order: 1;
+  justify-self: start;
+}
+
+.ban-team.red {
+  order: 2;
+  justify-self: end;
+}
+
+.ban-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ban-team-label {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 4px;
+}
+
+.ban-team.blue .ban-team-label {
+  color: #60a5fa;
+  text-shadow: 0 1px 3px rgba(59,130,246,0.3);
+}
+
+.ban-team.red .ban-team-label {
+  color: #f87171;
+  text-shadow: 0 1px 3px rgba(239,68,68,0.3);
+}
+
+.ban-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.ban-slot-spec {
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(38,44,62,0.7), rgba(28,32,46,0.5));
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.ban-slot-spec.blue {
+  border-color: rgba(96,165,250,0.5);
+}
+
+.ban-slot-spec.red {
+  border-color: rgba(248,113,113,0.5);
+}
+
+/* Picks Section - Fixed Layout */
+.picks-section {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  grid-template-areas: "blue-picks timer-space red-picks";
+  gap: 24px;
+  align-items: start;
+  min-height: 0;
+}
+
+.team-picks.blue {
+  grid-area: blue-picks;
+  order: 1;
+}
+
+.team-picks.red {
+  grid-area: red-picks;
+  order: 2;
+}
+
+.team-picks {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.team-picks-label {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  text-align: center;
+  padding: 12px 0;
+  border-bottom: 2px solid;
+  margin-bottom: 16px;
+}
+
+.team-picks.blue .team-picks-label {
+  color: #60a5fa;
+  border-color: #3b82f6;
+  text-shadow: 0 2px 4px rgba(59,130,246,0.3);
+}
+
+.team-picks.red .team-picks-label {
+  color: #f87171;
+  border-color: #ef4444;
+  text-shadow: 0 2px 4px rgba(239,68,68,0.3);
+}
+
+.picks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* Pick Cards - Improved Design */
+.pick-card {
+  width: 100%;
+  height: 80px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid;
+  background: linear-gradient(135deg, rgba(38,44,62,0.8), rgba(28,32,46,0.6));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+
+.pick-card.blue {
+  border-color: rgba(96,165,250,0.6);
+}
+
+.pick-card.red {
+  border-color: rgba(248,113,113,0.6);
+}
+
+.pick-card.active {
+  border-color: #fbbf24;
+  box-shadow: 
+    0 4px 16px rgba(0,0,0,0.35),
+    0 0 16px rgba(251,191,36,0.25);
+  transform: scale(1.02);
+}
+
+.pick-card-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pick-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.pick-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+  z-index: 1;
+}
+
+.pick-card-info {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  width: 100%;
+}
+
+.pick-number {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fbbf24;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  margin-bottom: 2px;
+  opacity: 0.9;
+}
+
+.god-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  line-height: 1.2;
+}
+
+.empty-pick {
+  color: rgba(156,163,184,0.6);
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Exit Button */
 .exit-spectator {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: var(--red);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: var(--r-md);
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 3px 10px rgba(239,68,68,0.3);
+}
+
+.exit-spectator:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+  background: linear-gradient(135deg, #f87171, #ef4444);
+}
+
+/* Ban diagonal effect */
+.ban-diagonal {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent 47%, rgba(220,38,38,0.9) 49%, rgba(220,38,38,0.9) 51%, transparent 53%);
+  pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .picks-section {
+    grid-template-columns: 280px 1fr 280px;
+    gap: 16px;
+  }
+  
+  .tournament-header {
+    grid-template-columns: 1fr 260px 1fr;
+    padding: 16px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tournament-header {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: center;
+    padding: 16px 20px;
+  }
+  
+  .team-info {
+    justify-content: center;
+  }
+  
+  .picks-section {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "blue-picks"
+      "red-picks";
+    gap: 20px;
+  }
+  
+  .bans-section {
+    gap: 24px;
+    padding: 12px 16px;
+  }
+  
+  .spectator-draft {
+    padding: 16px;
+    gap: 16px;
+  }
 }

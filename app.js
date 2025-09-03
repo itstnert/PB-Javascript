@@ -710,27 +710,37 @@ redReadyBtn.onclick = () => {
   }
 };
 
+// Update your lobby state handler to call the function
 window.addEventListener('lobby:state', (e) => {
   const state = e.detail;
   window.__draftState = state;
-  const inLobby = window.RT?.isConnected();
-  const blueReady = !!state.ready?.blue;
-  const redReady = !!state.ready?.red;
-  const bothReady = blueReady && redReady;
+  
+  if (window.__isSpectator) {
+    // Handle spectator mode updates
+    updateSpectatorView(state);
+  } else {
+    // Handle regular draft mode updates
+    renderDraftFromState(state);
+    renderSharedTimer(state);
+    
+    // ADD THIS LINE - Call the side highlighting function
+    updateSideOwnershipIndicators();
 
-  readyControls.style.display = inLobby ? 'flex' : 'none';
-  blueReadyBtn.innerText = blueReady ? "Blue: ✅ Ready" : "Blue: ❌ Not Ready";
-  redReadyBtn.innerText = redReady ? "Red: ✅ Ready" : "Red: ❌ Not Ready";
-  blueReadyBtn.disabled = mySide() !== 'blue';
-  redReadyBtn.disabled = mySide() !== 'red';
+    const serverTurnIndex = state.currentTurnIndex || 0;
+    highlightActiveSlot(serverTurnIndex);
 
-  // Add side ownership visual indicators
-  updateSideOwnershipIndicators();
+    if (state.names) {
+      document.getElementById('blueSideLabel').innerText = state.names.blue;
+      document.getElementById('redSideLabel').innerText = state.names.red;
+      document.getElementById('blueSideInput').value = state.names.blue;
+      document.getElementById('redSideInput').value = state.names.red;
+    }
 
-  if (bothReady && !readyInProgress && !turnInProgress) {
-    initiateReadyCountdown();
-  } else if (!bothReady) {
-    cancelAllCountdowns();
+    const mine = mySide();
+    document.querySelectorAll('.blue-side .pick-slot, .bans.blue .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'blue')));
+    document.querySelectorAll('.red-side .pick-slot, .bans.red .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
   }
 });
 }
@@ -749,7 +759,7 @@ function updateSideOwnershipIndicators() {
   });
   
   // Only add indicators if not a spectator
-  if (!window.__isSpectator) {
+  if (!window.__isSpectator && mine) {
     if (mine === 'blue' && blueSideContainer) {
       blueSideContainer.classList.add('my-side', 'blue');
     } else if (mine === 'red' && redSideContainer) {
@@ -761,59 +771,8 @@ function updateSideOwnershipIndicators() {
 // ========== Initialization ==========
 document.addEventListener('DOMContentLoaded', () => {
   loadCharacters();
-  setupPickBanDragClick();
-  setupLobbyUI();
-
-  window.addEventListener('lobby:state', (e) => {
-    const state = e.detail;
-    window.__draftState = state;
-    renderDraftFromState(state);
-    renderSharedTimer(state);
-
-  const serverTurnIndex = state.currentTurnIndex || 0;
-  highlightActiveSlot(serverTurnIndex);
-
-    if (state.names) {
-      document.getElementById('blueSideLabel').innerText = state.names.blue;
-      document.getElementById('redSideLabel').innerText = state.names.red;
-      document.getElementById('blueSideInput').value = state.names.blue;
-      document.getElementById('redSideInput').value = state.names.red;
-    }
-
-    const mine = mySide();
-    document.querySelectorAll('.blue-side .pick-slot, .bans.blue .ban-slot')
-      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'blue')));
-    document.querySelectorAll('.red-side .pick-slot, .bans.red .ban-slot')
-      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
-  });
-});
-
-// ========== Remaining Helper Functions ==========
-function loadCharacters() {
-  const container = document.getElementById('character-list');
-  container.innerHTML = '';
-  characters
-    .filter(c => c.roles.includes('Smite 2'))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach(c => container.append(createCharacterCard(c)));
-  filterGods();
-}
-// Add this function anywhere in your app.js
-function showSpectatorMode() {
-  alert("Spectator mode activated! You can now watch the draft.");
   
-  // Update lobby status
-  const status = document.getElementById('lobbyStatus');
-  status.textContent = `Watching ${window.RT.currentCode()}`;
-  
-  // Hide join controls - fix the ID here
-  document.getElementById('joinLobbyBtn').style.display = 'none'; // Changed from 'joinBtn'
-  document.getElementById('joinCodeInput').style.display = 'none';
-  document.getElementById('createLobbyBtn').style.display = 'none';
-  document.getElementById('copyLobbyBtn').style.display = 'inline-block';
-}
-
-function setupPickBanDragClick() {
+  // Replace setupPickBanDragClick() with this:
   document.querySelectorAll('.pick-slot').forEach(slot => {
     slot.addEventListener('dragover', allowDrop);
     slot.addEventListener('dragleave', clearDragOverClasses);
@@ -835,7 +794,235 @@ function setupPickBanDragClick() {
   });
 
   initTouchDrag();
+  
+  setupLobbyUI();
+
+  window.addEventListener('lobby:state', (e) => {
+    const state = e.detail;
+    window.__draftState = state;
+    renderDraftFromState(state);
+    renderSharedTimer(state);
+      if (window.__isSpectator) {
+    updateSpectatorView(state);
+  }
+
+  const serverTurnIndex = state.currentTurnIndex || 0;
+  highlightActiveSlot(serverTurnIndex);
+
+    if (state.names) {
+      document.getElementById('blueSideLabel').innerText = state.names.blue;
+      document.getElementById('redSideLabel').innerText = state.names.red;
+      document.getElementById('blueSideInput').value = state.names.blue;
+      document.getElementById('redSideInput').value = state.names.red;
+    }
+
+    const mine = mySide();
+    document.querySelectorAll('.blue-side .pick-slot, .bans.blue .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'blue')));
+    document.querySelectorAll('.red-side .pick-slot, .bans.red .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
+  });
+})
+
+// ========== Remaining Helper Functions ==========
+function loadCharacters() {
+  const container = document.getElementById('character-list');
+  container.innerHTML = '';
+  characters
+    .filter(c => c.roles.includes('Smite 2'))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(c => container.append(createCharacterCard(c)));
+  filterGods();
 }
+
+function showSpectatorMode() {
+  document.getElementById('spectatorOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  
+  const status = document.getElementById('lobbyStatus');
+  status.textContent = `Watching ${window.RT.currentCode()}`;
+  
+  // Make tournament title customizable
+  const tournamentTitle = prompt("Enter tournament/match title:", "Draft Mode") || "Draft Mode";
+  document.getElementById('tournamentTitle').textContent = tournamentTitle;
+  
+  document.getElementById('exitSpectator').onclick = hideSpectatorMode;
+  
+  if (window.__draftState) {
+    updateSpectatorView(window.__draftState);
+  }
+}
+
+function hideSpectatorMode() {
+  document.getElementById('spectatorOverlay').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  window.__isSpectator = false;
+  
+  // Show lobby controls again
+  document.getElementById('joinLobbyBtn').style.display = 'inline-block';
+  document.getElementById('joinCodeInput').style.display = 'inline-block';
+  document.getElementById('createLobbyBtn').style.display = 'inline-block';
+}
+
+function updateSpectatorView(state) {
+  // Update team names
+  document.getElementById('specBlueTeam').textContent = state.names?.blue || 'Blue Side';
+  document.getElementById('specRedTeam').textContent = state.names?.red || 'Red Side';
+  
+  // Update phase and turn
+  const turnIndex = state.currentTurnIndex || 0;
+  const turn = TURN_ORDER[turnIndex];
+  if (turn) {
+    const phase = turn.type === 'ban' ? 'Ban Phase' : 'Pick Phase';
+    const team = turn.team === 'blue' ? 'Blue Turn' : 'Red Turn';
+    document.getElementById('specPhase').textContent = phase;
+    document.getElementById('specTurn').textContent = team;
+  }
+  
+  // Update timer
+  if (state.timer && document.getElementById('specTimer')) {
+    // This will sync with your existing timer logic
+    renderSpectatorTimer(state);
+  }
+  
+  // Clear and update active states
+  document.querySelectorAll('.pick-card.active').forEach(card => 
+    card.classList.remove('active'));
+  
+  // Show current turn
+  if (turn && turn.type === 'pick') {
+    const pickIndex = Math.floor((turnIndex - 6) / 2);
+    const selector = turn.team === 'blue' ? '#specBluePicks' : '#specRedPicks';
+    const pickCards = document.querySelectorAll(`${selector} .pick-card`);
+    if (pickCards[pickIndex] && pickIndex >= 0) {
+      pickCards[pickIndex].classList.add('active');
+    }
+  }
+  
+  // TODO: Update actual picks and bans display
+  updateSpectatorPicks(state);
+  updateSpectatorBans(state);
+}
+
+function updateSpectatorView(state) {
+  // Update team names
+  document.getElementById('specBlueTeam').textContent = state.names?.blue || 'Blue Side';
+  document.getElementById('specRedTeam').textContent = state.names?.red || 'Red Side';
+  
+  // Update phase and turn
+  const turnIndex = state.currentTurnIndex || 0;
+  const turn = TURN_ORDER[turnIndex];
+  if (turn) {
+    const phase = turn.type === 'ban' ? 'Ban Phase' : 'Pick Phase';
+    const team = turn.team === 'blue' ? 'Blue Turn' : 'Red Turn';
+    document.getElementById('specPhase').textContent = phase;
+    document.getElementById('specTurn').textContent = team;
+  }
+  
+  // Update timer
+  renderSpectatorTimer(state);
+  
+  // Clear and update active states
+  document.querySelectorAll('.pick-card.active').forEach(card => 
+    card.classList.remove('active'));
+  
+  // Show current turn
+  if (turn && turn.type === 'pick') {
+    const pickIndex = Math.floor((turnIndex - 6) / 2);
+    if (pickIndex >= 0 && pickIndex < 5) {
+      const selector = turn.team === 'blue' ? '#specBluePicks' : '#specRedPicks';
+      const pickCards = document.querySelectorAll(`${selector} .pick-card`);
+      if (pickCards[pickIndex]) {
+        pickCards[pickIndex].classList.add('active');
+      }
+    }
+  }
+  
+  // Update actual picks and bans display
+  updateSpectatorPicks(state);
+  updateSpectatorBans(state);
+}
+
+function renderSpectatorTimer(state) {
+  const display = document.getElementById('specTimer');
+  if (!display || !state?.timer?.startAt || !state?.timer?.duration) {
+    if (display) display.textContent = '--';
+    return;
+  }
+
+  const startAt = state.timer.startAt;
+  const duration = state.timer.duration;
+  const offset = state.__serverOffset || 0;
+
+  const endAt = startAt + duration * 1000;
+  const getNow = () => Date.now() + offset;
+  const remaining = Math.max(0, endAt - getNow());
+  const seconds = Math.ceil(remaining / 1000);
+  
+  display.textContent = seconds;
+}
+
+function updateSpectatorPicks(state) {
+  // Clear all pick cards first
+  document.querySelectorAll('.pick-card .pick-card-bg').forEach(bg => bg.remove());
+  document.querySelectorAll('.pick-card .pick-card-overlay').forEach(overlay => overlay.remove());
+  document.querySelectorAll('.pick-card .god-name').forEach(name => {
+    name.textContent = 'WAITING...';
+    name.classList.add('empty-pick');
+  });
+
+  // Update pick cards with actual god data
+  Object.entries(state.picks || {}).forEach(([slot, godName]) => {
+    if (!godName) return;
+    
+    const isBlue = slot[0] === 'B';
+    const pickIndex = parseInt(slot.slice(1)) - 1;
+    const selector = isBlue ? '#specBluePicks .pick-card' : '#specRedPicks .pick-card';
+    const pickCard = document.querySelectorAll(selector)[pickIndex];
+    
+    if (pickCard) {
+      const cardContent = pickCard.querySelector('.pick-card-content');
+      const godNameEl = pickCard.querySelector('.god-name');
+      
+      // Add background image
+      const bgDiv = document.createElement('div');
+      bgDiv.className = 'pick-card-bg';
+      cardContent.insertBefore(bgDiv, cardContent.firstChild);
+      
+      const overlay = document.createElement('div');
+      overlay.className = 'pick-card-overlay';
+      cardContent.insertBefore(overlay, godNameEl.parentElement);
+      
+      const normalizedName = godName.replace(/ /g, '_');
+      bgDiv.style.backgroundImage = `url('Smite Icons/${normalizedName}S2.png')`;
+      
+      godNameEl.textContent = godName.toUpperCase();
+      godNameEl.classList.remove('empty-pick');
+    }
+  });
+}
+
+function updateSpectatorBans(state) {
+  // Clear existing bans
+  document.querySelectorAll('.ban-slot-spec').forEach(slot => slot.innerHTML = '');
+  
+  // Update ban slots with actual ban data
+  ['blue', 'red'].forEach(team => {
+    const bans = state.bans?.[team] || [];
+    const banSlots = document.querySelectorAll(`#spec${team.charAt(0).toUpperCase() + team.slice(1)}Bans .ban-slot-spec`);
+    
+    bans.forEach((godName, index) => {
+      if (godName && banSlots[index]) {
+        const normalizedName = godName.replace(/ /g, '_');
+        banSlots[index].innerHTML = `
+          <div style="background: url('Smite Icons/${normalizedName}S2.png') center/cover; width: 100%; height: 100%; border-radius: calc(var(--r-md) - 2px);"></div>
+          <div class="ban-diagonal"></div>
+        `;
+      }
+    });
+  });
+}
+
 
 function initTouchDrag() {
   let draggingId = null;
