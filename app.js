@@ -29,7 +29,7 @@ const characters = [
     { name: "Cabrakan", image: "Smite Icons/Cabrakan.png", roles: ["Support", "Jungle", "Solo", "Smite 2"]  },
     { name: "Camazotz", image: "Smite Icons/Camazotz.png", roles: ["Jungle", "Solo"]  },
     { name: "Cerberus", image: "Smite Icons/Cerberus.png", roles: ["Solo", "Support", "Smite 2"]  },
-    { name: "Cernunnos", image: "Smite Icons/Cernunnos.png", roles: ["Carry", "Smite 2"]  },
+    { name: "Cernunnos", image: "Smite Icons/Cernunnos.png", roles: ["Carry", "Jungle", "Smite 2"]  },
     { name: "Chaac", image: "Smite Icons/Chaac.png", roles: ["Solo", "Smite 2"]  },
     { name: "Chang'e", image: "Smite Icons/Chang'e.png", roles: ["Mid", "Solo"]  },
     { name: "Charon", image: "Smite Icons/Charon.png", roles: ["Support"]  },
@@ -141,6 +141,8 @@ let currentRoleFilter = null;
 let timerInterval = null;
 let readyCountdown = null;
 let turnInterval = null;
+let draftEnded = false;
+let draftResult = null; // 'blue_forfeit', 'red_forfeit', or null
 
 const TURN_DURATION = 20; // seconds per pick/ban turn
 let currentTurnIndex = 0;
@@ -384,6 +386,72 @@ function cancelAllCountdowns() {
   if (display) display.style.display = 'none';
 }
 
+function showDraftResult() {
+  if (!draftResult) return;
+  
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+  `;
+  
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: linear-gradient(135deg, rgba(30,34,48,0.95), rgba(22,26,40,0.9));
+    border: 2px solid var(--stroke);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  `;
+  
+  const winner = draftResult === 'blue_forfeit' ? 'Red' : 'Blue';
+  const loser = draftResult === 'blue_forfeit' ? 'Blue' : 'Red';
+  
+  modal.innerHTML = `
+    <h2 style="color: var(--gold); font-size: 24px; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 1px;">
+      Draft Forfeited
+    </h2>
+    <p style="color: var(--ink); font-size: 16px; margin: 0 0 24px 0;">
+      ${loser} side failed to make their pick within the time limit.
+    </p>
+    <p style="color: ${winner === 'Blue' ? 'var(--blue)' : 'var(--red)'}; font-size: 18px; font-weight: 700; margin: 0 0 24px 0;">
+      ${winner} side wins by forfeit!
+    </p>
+    <button id="closeDraftResult" style="
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: #0a0d1a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    ">Close</button>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  document.getElementById('closeDraftResult').onclick = () => {
+    overlay.remove();
+  };
+  
+  // Also stop all timers
+  clearInterval(timerInterval);
+}
+
 // ========== Shared Timer for Sync ==========
 function renderSharedTimer(state) {
   const display = document.getElementById('timerDisplay');
@@ -405,10 +473,13 @@ function renderSharedTimer(state) {
     display.innerText = seconds;
     display.style.display = 'block';
 
-    if (remaining <= 0) clearInterval(timerInterval);
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      handleTimeout(state); // Add timeout handling
+    }
   };
 
-  update(); // Show first frame
+  update();
   clearInterval(timerInterval);
   timerInterval = setInterval(update, 200);
 }
@@ -416,6 +487,191 @@ function renderSharedTimer(state) {
 // ========== Drag & Drop ==========
 function drag(event) {
   event.dataTransfer.setData('text', event.target.id);
+}
+
+// Update your renderSharedTimer function to handle timeouts
+function renderSharedTimer(state) {
+  const display = document.getElementById('timerDisplay');
+  if (!display || !state?.timer?.startAt || !state?.timer?.duration) {
+    display.style.display = 'none';
+    return;
+  }
+
+  const startAt = state.timer.startAt;
+  const duration = state.timer.duration;
+  const offset = state.__serverOffset || 0;
+
+  const endAt = startAt + duration * 1000;
+  const getNow = () => Date.now() + offset;
+
+  const update = () => {
+    const remaining = Math.max(0, endAt - getNow());
+    const seconds = Math.ceil(remaining / 1000);
+    display.innerText = seconds;
+    display.style.display = 'block';
+
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      handleTimeout(state); // Add timeout handling
+    }
+  };
+
+  update();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(update, 200);
+}
+
+// New function to handle timeouts
+function handleTimeout(state) {
+  if (draftEnded) return;
+  
+  const turnIndex = state.currentTurnIndex || 0;
+  if (turnIndex >= TURN_ORDER.length) return;
+  
+  const turn = TURN_ORDER[turnIndex];
+  
+  if (turn.type === 'ban') {
+    // Skip the ban and advance to next turn
+    console.log(`${turn.team} missed their ban - skipping`);
+    window.RT.resetTimer(20); // Start next turn immediately
+  } else if (turn.type === 'pick') {
+    // Forfeit the draft
+    console.log(`${turn.team} missed their pick - draft forfeited`);
+    draftEnded = true;
+    draftResult = turn.team === 'blue' ? 'blue_forfeit' : 'red_forfeit';
+    showDraftResult();
+  }
+}
+
+// Function to display draft results
+function showDraftResult() {
+  if (!draftResult) return;
+  
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+  `;
+  
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: linear-gradient(135deg, rgba(30,34,48,0.95), rgba(22,26,40,0.9));
+    border: 2px solid var(--stroke);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  `;
+  
+  const winner = draftResult === 'blue_forfeit' ? 'Red' : 'Blue';
+  const loser = draftResult === 'blue_forfeit' ? 'Blue' : 'Red';
+  
+  modal.innerHTML = `
+    <h2 style="color: var(--gold); font-size: 24px; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 1px;">
+      Draft Forfeited
+    </h2>
+    <p style="color: var(--ink); font-size: 16px; margin: 0 0 24px 0;">
+      ${loser} side failed to make their pick within the time limit.
+    </p>
+    <p style="color: ${winner === 'Blue' ? 'var(--blue)' : 'var(--red)'}; font-size: 18px; font-weight: 700; margin: 0 0 24px 0;">
+      ${winner} side wins by forfeit!
+    </p>
+    <button id="closeDraftResult" style="
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: #0a0d1a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    ">Close</button>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  document.getElementById('closeDraftResult').onclick = () => {
+    overlay.remove();
+  };
+  
+  // Also stop all timers
+  clearInterval(timerInterval);
+}
+
+// Update your lobby state handler to check for draft completion
+window.addEventListener('lobby:state', (e) => {
+  const state = e.detail;
+  window.__draftState = state;
+  
+  if (state.draftEnded && state.draftResult && !draftEnded) {
+    draftEnded = true;
+    showDraftResult(state.draftResult);
+    clearInterval(timerInterval);
+  }
+  
+  // Check if draft should end due to timeout
+  if (!draftEnded && state.currentTurnIndex >= TURN_ORDER.length) {
+    draftEnded = true;
+    console.log("Draft completed normally");
+  }
+  
+  if (window.__isSpectator) {
+    updateSpectatorView(state);
+  } else {
+    renderDraftFromState(state);
+    if (!draftEnded) { // Only render timer if draft is still active
+      renderSharedTimer(state);
+    }
+    updateSideOwnershipIndicators();
+    updateReadyButtons(state);
+
+    const serverTurnIndex = state.currentTurnIndex || 0;
+    highlightActiveSlot(serverTurnIndex);
+
+    if (state.names) {
+      document.getElementById('blueSideLabel').innerText = state.names.blue;
+      document.getElementById('redSideLabel').innerText = state.names.red;
+      document.getElementById('blueSideInput').value = state.names.blue;
+      document.getElementById('redSideInput').value = state.names.red;
+    }
+
+    const mine = mySide();
+    document.querySelectorAll('.blue-side .pick-slot, .bans.blue .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'blue')));
+    document.querySelectorAll('.red-side .pick-slot, .bans.red .ban-slot')
+      .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
+  }
+});
+
+function showDraftResult() {
+  if (!draftResult) return;
+  
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+  `;
 }
 
 function allowDrop(event) {
@@ -428,6 +684,7 @@ function allowDrop(event) {
   // Add drag-over to current slot
   event.currentTarget.classList.add('drag-over');
 }
+
 
 function clearDragOverClasses() {
   document.querySelectorAll('.pick-slot.drag-over, .ban-slot.drag-over')
@@ -570,6 +827,40 @@ function removeBanClick(event) {
       removeGreyOutCharacter(id);
     }
     target.innerHTML = '';
+  }
+}
+
+function updateReadyButtons(state) {
+  const blueReadyBtn = document.getElementById('blueReadyBtn');
+  const redReadyBtn = document.getElementById('redReadyBtn');
+  const myId = window.RT.getClientId();
+  
+  if (!state || !blueReadyBtn || !redReadyBtn) return;
+  
+  // Update blue button
+  const blueReady = state.ready?.blue || false;
+  const iBlueOwner = state.owners?.blue === myId;
+  blueReadyBtn.textContent = `Blue: ${blueReady ? '✅ Ready' : '❌ Not Ready'}`;
+  blueReadyBtn.disabled = !iBlueOwner;
+  blueReadyBtn.style.opacity = iBlueOwner ? '1' : '0.5';
+  
+  // Update red button  
+  const redReady = state.ready?.red || false;
+  const iRedOwner = state.owners?.red === myId;
+  redReadyBtn.textContent = `Red: ${redReady ? '✅ Ready' : '❌ Not Ready'}`;
+  redReadyBtn.disabled = !iRedOwner;
+  redReadyBtn.style.opacity = iRedOwner ? '1' : '0.5';
+  
+  // Handle countdown logic
+  const bothReady = blueReady && redReady;
+  
+  if (bothReady && !readyInProgress && !hasStartedDraft) {
+    // Both ready - start countdown
+    initiateReadyCountdown();
+  } else if (!bothReady && readyInProgress) {
+    // Someone unreadied - cancel countdown
+    cancelAllCountdowns();
+    console.log("Countdown cancelled - someone unreadied");
   }
 }
 
@@ -724,6 +1015,7 @@ window.addEventListener('lobby:state', (e) => {
     // Handle regular draft mode updates
     renderDraftFromState(state);
     renderSharedTimer(state);
+    updateReadyButtons(state); // Add this line
     
     // ADD THIS LINE - Call the side highlighting function
     updateSideOwnershipIndicators();

@@ -52,64 +52,53 @@ const RT = {
   currentCode: () => currentCode,
   getClientId: () => clientId,
 
-async createLobby() {
-  currentCode = genCode();
-// In realtime.js, update your lobby creation structure
-  await set(ref(db, `lobbies/${currentCode}`), {
-    state: {
-      names: { blue: "Blue Side", red: "Red Side" },
-      owners: { blue: clientId, red: null },
-      spectators: {}, // Add this line
-      timer: { duration: 20, startAt: null },
-      picks: {},
-      bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
-      ready: { blue: false, red: false },
-      currentTurnIndex: 0,
-      updatedAt: serverTimestamp()
-    }
-      
-});
-  listenToState(currentCode);
-  return currentCode;
-},
-
-async joinLobby(code) {
-  currentCode = code;
-  listenToState(code);
-  
-  // Wait for state to load
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
-  // Automatically claim red side
-  await RT.claimSide("red", "Red Side");
-},
+  async createLobby() {
+    currentCode = genCode();
+    await set(ref(db, `lobbies/${currentCode}`), {
+      state: {
+        names: { blue: "Blue Side", red: "Red Side" },
+        owners: { blue: clientId, red: null },
+        spectators: {},
+        timer: { duration: 20, startAt: null },
+        picks: {},
+        bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
+        ready: { blue: false, red: false },
+        currentTurnIndex: 0,
+        draftEnded: false,
+        draftResult: null,
+        updatedAt: serverTimestamp()
+      }
+    });
+    listenToState(currentCode);
+    return currentCode;
+  },
 
   async joinLobby(code) {
-  currentCode = code;
-  listenToState(code);
-  
-  // Wait for state to load
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
-  const state = window.__draftState;
-  if (state) {
-    const myId = clientId;
+    currentCode = code;
+    listenToState(code);
     
-    // Check if I already own a side
-    if (state.owners?.blue === myId || state.owners?.red === myId) {
-      return; // Already claimed a side
-    }
+    // Wait for state to load
+    await new Promise(resolve => setTimeout(resolve, 200));
     
-    // Auto-claim red if it's available
-    if (!state.owners?.red) {
-      await RT.claimSide("red", "Red Side");
-    } else if (!state.owners?.blue) {
-      // If red is taken but blue is somehow free, claim blue
-      await RT.claimSide("blue", "Blue Side");
+    const state = window.__draftState;
+    if (state) {
+      const myId = clientId;
+      
+      // Check if I already own a side
+      if (state.owners?.blue === myId || state.owners?.red === myId) {
+        return; // Already claimed a side
+      }
+      
+      // Auto-claim red if it's available
+      if (!state.owners?.red) {
+        await RT.claimSide("red", "Red Side");
+      } else if (!state.owners?.blue) {
+        // If red is taken but blue is somehow free, claim blue
+        await RT.claimSide("blue", "Blue Side");
+      }
     }
-  }
-},
-  // Add this function - make sure it's properly formatted
+  },
+
   async checkLobbyState(code) {
     try {
       const lobbyRef = ref(db, `lobbies/${code}/state`);
@@ -124,7 +113,6 @@ async joinLobby(code) {
   async joinAsSpectator(code, spectatorName = "Spectator") {
     currentCode = code;
     
-    // Add to spectators list instead of claiming a side
     const updates = {
       [`lobbies/${code}/state/spectators/${clientId}`]: spectatorName,
       [`lobbies/${code}/state/updatedAt`]: serverTimestamp()
@@ -133,9 +121,8 @@ async joinLobby(code) {
     await update(ref(db), updates);
     listenToState(code);
     
-    // Set spectator flag - this prevents side claiming
     window.__isSpectator = true;
-},
+  },
 
   async clearPick(slot) {
     if (!currentCode || !slot) return;
@@ -177,7 +164,7 @@ async joinLobby(code) {
     }
   },
 
-    async setPick(slot, god) {
+  async setPick(slot, god) {
     if (!currentCode || !slot || typeof god !== "string") return;
     if (!/^[BR][1-5]$/.test(slot)) return console.error("Invalid slot:", slot);
 
@@ -221,23 +208,23 @@ async joinLobby(code) {
     await update(ref(db), updates);
   },
 
-async claimSide(side, name) {
-  if (!currentCode || !["blue", "red"].includes(side)) return;
-  
-  // First check if this side is already taken
-  const stateSnap = await get(ref(db, `lobbies/${currentCode}/state/owners/${side}`));
-  if (stateSnap.val() && stateSnap.val() !== clientId) {
-    console.log(`${side} side already claimed by another player`);
-    return;
-  }
-  
-  const updates = {
-    [`lobbies/${currentCode}/state/owners/${side}`]: clientId,
-    [`lobbies/${currentCode}/state/names/${side}`]: name,
-    [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-  };
-  await update(ref(db), updates);
-},
+  async claimSide(side, name) {
+    if (!currentCode || !["blue", "red"].includes(side)) return;
+    
+    // First check if this side is already taken
+    const stateSnap = await get(ref(db, `lobbies/${currentCode}/state/owners/${side}`));
+    if (stateSnap.val() && stateSnap.val() !== clientId) {
+      console.log(`${side} side already claimed by another player`);
+      return;
+    }
+    
+    const updates = {
+      [`lobbies/${currentCode}/state/owners/${side}`]: clientId,
+      [`lobbies/${currentCode}/state/names/${side}`]: name,
+      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
+    };
+    await update(ref(db), updates);
+  },
 
   async resetTimer(duration = 20) {
     if (!currentCode) return;
@@ -251,6 +238,27 @@ async claimSide(side, name) {
 
   async startTimer(duration = 20) {
     return RT.resetTimer(duration);
+  },
+
+  // New function to skip a ban and advance turn
+  async skipBan() {
+    if (!currentCode) return;
+    const updates = {
+      [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
+      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
+    };
+    await update(ref(db), updates);
+  },
+
+  // New function to forfeit draft
+  async forfeitDraft(team) {
+    if (!currentCode || !["blue", "red"].includes(team)) return;
+    const updates = {
+      [`lobbies/${currentCode}/state/draftEnded`]: true,
+      [`lobbies/${currentCode}/state/draftResult`]: `${team}_forfeit`,
+      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
+    };
+    await update(ref(db), updates);
   }
 };
 
