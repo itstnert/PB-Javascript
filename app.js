@@ -96,7 +96,7 @@ const characters = [
     { name: "Nu Wa", image: "Smite Icons/Nu_Wa.png", roles: ["Mid", "Carry", "Smite 2"]    },
     { name: "Odin", image: "Smite Icons/Odin.png", roles: ["Solo", "Jungle", "Smite 2"]    },
     { name: "Olorun", image: "Smite Icons/Olorun.png", roles: ["Carry"]    },
-    { name: "Osiris", image: "Smite Icons/Osiris.png", roles: ["Solo"]    },
+    { name: "Osiris", image: "Smite Icons/Osiris.png", roles: ["Solo", "Jungle", "Smite 2"]    },
     { name: "Pele", image: "Smite Icons/Pele.png", roles: ["Jungle", "Solo", "Smite 2"]    },
     { name: "Persephone", image: "Smite Icons/Persephone.png", roles: ["Mid"]    },
     { name: "Poseidon", image: "Smite Icons/Poseidon.png", roles: ["Mid", "Carry", "Smite 2"]    },
@@ -1136,11 +1136,28 @@ function showSpectatorMode() {
   const status = document.getElementById('lobbyStatus');
   status.textContent = `Watching ${window.RT.currentCode()}`;
   
-  // Make tournament title customizable
+  // Get tournament title
   const tournamentTitle = prompt("Enter tournament/match title:", "Draft Mode") || "Draft Mode";
   document.getElementById('tournamentTitle').textContent = tournamentTitle;
   
-  document.getElementById('exitSpectator').onclick = hideSpectatorMode;
+  // Get series scores
+  const blueScoreInput = prompt("Enter Blue Side current score:", "0");
+  const redScoreInput = prompt("Enter Red Side current score:", "0");
+  
+  const blueScore = parseInt(blueScoreInput) || 0;
+  const redScore = parseInt(redScoreInput) || 0;
+  
+  document.getElementById('blueScore').textContent = blueScore;
+  document.getElementById('redScore').textContent = redScore;
+  
+  // Add escape key listener
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      hideSpectatorMode();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
   
   if (window.__draftState) {
     updateSpectatorView(window.__draftState);
@@ -1237,10 +1254,13 @@ function updateSpectatorView(state) {
   updateSpectatorBans(state);
 }
 
+let spectatorTimerInterval = null;
+
 function renderSpectatorTimer(state) {
   const display = document.getElementById('specTimer');
   if (!display || !state?.timer?.startAt || !state?.timer?.duration) {
     if (display) display.textContent = '--';
+    clearInterval(spectatorTimerInterval);
     return;
   }
 
@@ -1250,10 +1270,20 @@ function renderSpectatorTimer(state) {
 
   const endAt = startAt + duration * 1000;
   const getNow = () => Date.now() + offset;
-  const remaining = Math.max(0, endAt - getNow());
-  const seconds = Math.ceil(remaining / 1000);
-  
-  display.textContent = seconds;
+
+  const update = () => {
+    const remaining = Math.max(0, endAt - getNow());
+    const seconds = Math.ceil(remaining / 1000);
+    display.textContent = seconds;
+
+    if (remaining <= 0) {
+      clearInterval(spectatorTimerInterval);
+    }
+  };
+
+  update();
+  clearInterval(spectatorTimerInterval);
+  spectatorTimerInterval = setInterval(update, 200);
 }
 
 function updateSpectatorPicks(state) {
