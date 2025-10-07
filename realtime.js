@@ -59,7 +59,7 @@ const RT = {
         names: { blue: "Blue Side", red: "Red Side" },
         owners: { blue: clientId, red: null },
         spectators: {},
-        timer: { duration: 20, startAt: null },
+        timer: { duration: 25, startAt: null },
         picks: {},
         bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
         ready: { blue: false, red: false },
@@ -226,7 +226,7 @@ const RT = {
     await update(ref(db), updates);
   },
 
-  async resetTimer(duration = 20) {
+  async resetTimer(duration = 25) {
     if (!currentCode) return;
     const updates = {
       [`lobbies/${currentCode}/state/timer/duration`]: duration,
@@ -236,7 +236,7 @@ const RT = {
     await update(ref(db), updates);
   },
 
-  async startTimer(duration = 20) {
+  async startTimer(duration = 25) {
     return RT.resetTimer(duration);
   },
 
