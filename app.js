@@ -36,7 +36,7 @@ const characters = [
     { name: "Charybdis", image: "Smite Icons/Charybdis.png", roles: ["Carry"]  },
     { name: "Chernobog", image: "Smite Icons/Chernobog.png", roles: ["Carry"]  },
     { name: "Chiron", image: "Smite Icons/Chiron.png", roles: ["Carry", "Mid", "Smite 2"]  },
-    { name: "Chronos", image: "Smite Icons/Chronos.png", roles: ["Carry", "Mid"]  },
+    { name: "Chronos", image: "Smite Icons/Chronos.png", roles: ["Carry", "Mid", "Smite 2"]  },
     { name: "Cliodhna", image: "Smite Icons/Cliodhna.png", roles: ["Jungle", "Solo"]  },
     { name: "Cthulhu", image: "Smite Icons/Cthulhu.png", roles: ["Solo"]  },
     { name: "Cu Chulainn", image: "Smite Icons/Cu_Chulainn.png", roles: ["Solo"]  },
