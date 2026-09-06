@@ -10,32 +10,29 @@
 <body>
 
   <!-- Header -->
-  <!-- Header with Rename Fields -->
-<div class="header">
-  <div class="blue-header-block">
-    <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
-    <input type="text" class="rename-input-header" id="blueSideInput" placeholder="Rename Blue Side" />
+  <div class="header">
+    <div class="blue-header-block">
+      <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
+      <input type="text" class="rename-input-header" id="blueSideInput" placeholder="Rename Blue Side" />
+    </div>
+
+    <div class="logo-container">
+      <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
+    </div>
+
+    <div class="red-header-block">
+      <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
+      <input type="text" class="rename-input-header" id="redSideInput" placeholder="Rename Red Side" />
+    </div>
   </div>
 
-  <div class="logo-container">
-    <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
-  </div>
-
-  <div class="red-header-block">
-    <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
-    <input type="text" class="rename-input-header" id="redSideInput" placeholder="Rename Red Side" />
-  </div>
-</div>
-
-
-  <!-- Lobby + Rename -->
+  <!-- Lobby -->
   <div class="lobby-bar">
     <button id="createLobbyBtn" class="btn">Create Lobby</button>
     <input id="joinCodeInput" class="code-input" placeholder="Code (e.g., AB123)" maxlength="6" />
     <button id="joinLobbyBtn" class="btn">Join</button>
     <span id="lobbyStatus" class="lobby-status">Not connected</span>
     <button id="copyLobbyBtn" class="btn secondary" style="display: none;">Copy Code</button>
-    </div>
   </div>
 
   <!-- Ready Section -->
@@ -44,18 +41,26 @@
     <div id="timerDisplay" class="timer-display" style="display: none;"></div>
     <div class="ready-buttons">
       <div id="startCountdown" class="start-countdown" style="display: none;">Draft starting in 5...</div>
-      <button id="blueReadyBtn" class="ready-btn blue">Blue: ❌ Not Ready</button>
-      <button id="redReadyBtn" class="ready-btn red">Red: ❌ Not Ready</button>
+      <button id="blueReadyBtn" class="ready-btn blue">Blue: &#10060; Not Ready</button>
+      <button id="redReadyBtn" class="ready-btn red">Red: &#10060; Not Ready</button>
     </div>
   </div>
 
-  <!-- Bans -->
+  <!-- Bans — 5 per side -->
   <div class="bans-container">
     <div class="bans blue">
-      <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
     </div>
     <div class="bans red">
-      <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
+      <div class="ban-slot"></div>
     </div>
   </div>
 
@@ -99,157 +104,160 @@
     </div>
   </div>
 
-<div class="spectator-overlay" id="spectatorOverlay" style="display: none;">
-  <div class="tournament-header">
-    <div class="team-info blue">
-      <div class="team-score" id="blueScore">0</div>
-      <div class="team-name" id="specBlueTeam">Blue Side</div>
+  <!-- Spectator / broadcast view -->
+  <div class="spectator-overlay" id="spectatorOverlay" style="display: none;">
+    <div class="tournament-header">
+      <div class="team-info blue">
+        <div class="team-score" id="blueScore">0</div>
+        <div class="team-name" id="specBlueTeam">Blue Side</div>
+      </div>
+
+      <div class="tournament-info">
+        <div class="tournament-title" id="tournamentTitle">SMITE DRAFT</div>
+        <div class="match-phase" id="specPhase">Draft Phase</div>
+      </div>
+
+      <div class="team-info red">
+        <div class="team-name" id="specRedTeam">Red Side</div>
+        <div class="team-score" id="redScore">0</div>
+      </div>
     </div>
-    
-    <div class="tournament-info">
-      <div class="tournament-title" id="tournamentTitle">SMITE DRAFT</div>
-      <div class="match-phase" id="specPhase">Draft Phase</div>
-    </div>
-    
-    <div class="team-info red">
-      <div class="team-name" id="specRedTeam">Red Side</div>
-      <div class="team-score" id="redScore">0</div>
+
+    <div class="spectator-draft">
+      <!-- Bans — 5 per side -->
+      <div class="bans-section">
+        <div class="ban-team blue">
+          <div class="ban-team-label">Blue Bans</div>
+          <div class="ban-grid" id="specBlueBans">
+            <div class="ban-slot-spec blue"></div>
+            <div class="ban-slot-spec blue"></div>
+            <div class="ban-slot-spec blue"></div>
+            <div class="ban-slot-spec blue"></div>
+            <div class="ban-slot-spec blue"></div>
+          </div>
+        </div>
+
+        <div class="ban-team red">
+          <div class="ban-team-label">Red Bans</div>
+          <div class="ban-grid" id="specRedBans">
+            <div class="ban-slot-spec red"></div>
+            <div class="ban-slot-spec red"></div>
+            <div class="ban-slot-spec red"></div>
+            <div class="ban-slot-spec red"></div>
+            <div class="ban-slot-spec red"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picks -->
+      <div class="picks-section">
+        <div class="team-picks blue">
+          <div class="team-picks-label">Blue Picks</div>
+          <div class="picks-grid" id="specBluePicks">
+            <div class="pick-card blue">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">B1</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card blue">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">B2</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card blue">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">B3</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card blue">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">B4</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card blue">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">B5</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timer-section">
+          <div class="timer-label">Turn Timer</div>
+          <div class="timer-value" id="specTimer">--</div>
+          <div class="phase-indicator" id="specTurn">Waiting</div>
+        </div>
+
+        <div class="team-picks red">
+          <div class="team-picks-label">Red Picks</div>
+          <div class="picks-grid" id="specRedPicks">
+            <div class="pick-card red">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">R1</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card red">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">R2</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card red">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">R3</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card red">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">R4</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="pick-card red">
+              <div class="pick-card-content">
+                <div class="pick-card-info">
+                  <div class="pick-number">R5</div>
+                  <div class="god-name empty-pick">WAITING...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-    <!-- Bans Section -->
-    <div class="bans-section">
-      <div class="ban-team blue">
-        <div class="ban-team-label">Blue Bans</div>
-        <div class="ban-grid" id="specBlueBans">
-          <div class="ban-slot-spec blue"></div>
-          <div class="ban-slot-spec blue"></div>
-          <div class="ban-slot-spec blue"></div>
-        </div>
-      </div>
-      
-      <div class="ban-team red">
-        <div class="ban-team-label">Red Bans</div>
-        <div class="ban-grid" id="specRedBans">
-          <div class="ban-slot-spec red"></div>
-          <div class="ban-slot-spec red"></div>
-          <div class="ban-slot-spec red"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Simplified Picks Section -->
-<div class="picks-section">
-  <!-- BLUE PICKS ON LEFT -->
-  <div class="team-picks blue">
-    <div class="team-picks-label">Blue Picks</div>
-    <div class="picks-grid" id="specBluePicks">
-      <div class="pick-card blue">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">B1</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card blue">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">B2</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card blue">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">B3</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card blue">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">B4</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card blue">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">B5</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TIMER IN CENTER (NOT WRAPPED) -->
-  <div class="timer-section">
-    <div class="timer-label">Pick Timer</div>
-    <div class="timer-value" id="specTimer">--</div>
-    <div class="phase-indicator" id="specTurn">Waiting</div>
-  </div>
-
-  <!-- RED PICKS ON RIGHT -->
-  <div class="team-picks red">
-    <div class="team-picks-label">Red Picks</div>
-    <div class="picks-grid" id="specRedPicks">
-      <div class="pick-card red">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">R1</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card red">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">R2</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card red">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">R3</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card red">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">R4</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-      <div class="pick-card red">
-        <div class="pick-card-content">
-          <div class="pick-card-info">
-            <div class="pick-number">R5</div>
-            <div class="god-name empty-pick">WAITING...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-</div>
 
   <!-- Footer -->
-  <div class="made-by-footer">V2.17 Made by @TrentUDK</div>
+  <div class="made-by-footer">V3.1 Made by @TrentUDK</div>
 
-  <!-- Scripts -->
-  <script type="module" src="realtime.js"></script>
+  <!-- Scripts: app.js is a classic script and runs first, publishing the
+       turn table; realtime.js is a module and is deferred until after it. -->
   <script src="app.js"></script>
-</body> 
+  <script type="module" src="realtime.js"></script>
+</body>
 </html>

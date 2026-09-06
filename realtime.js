@@ -1,15 +1,22 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
+  getAuth,
+  signInAnonymously
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
   getDatabase,
   ref,
   set,
   update,
   get,
   onValue,
+  runTransaction,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-// Firebase config
+// ---------------------------------------------------------
+// Firebase
+// ---------------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyAXCUfnnCv34TMrfEYipdOQJbTGJxD3tsg",
   authDomain: "smitedraft-f2ff3.firebaseapp.com",
@@ -23,7 +30,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Persistent client ID
+// Anonymous sign-in, deliberately non-blocking. With wide-open database
+// rules this changes nothing. Once you enable Anonymous auth in the
+// Firebase console and tighten your rules (see README notes), this is what
+// lets those rules identify who owns which side. If it fails, the app keeps
+// working exactly as before.
+signInAnonymously(getAuth(app)).catch(err => {
+  console.warn("Anonymous auth unavailable — running unauthenticated.", err?.code || err);
+});
+
+// ---------------------------------------------------------
+// Client identity and server clock
+// ---------------------------------------------------------
 const CLIENT_ID_KEY = "smdraft:clientId";
 let clientId = localStorage.getItem(CLIENT_ID_KEY);
 if (!clientId) {
@@ -31,78 +49,118 @@ if (!clientId) {
   localStorage.setItem(CLIENT_ID_KEY, clientId);
 }
 
-// Sync server time offset
 let serverOffset = 0;
-get(ref(db, ".info/serverTimeOffset")).then(snap => {
+onValue(ref(db, ".info/serverTimeOffset"), snap => {
   serverOffset = snap.val() || 0;
 });
+const serverNow = () => Date.now() + serverOffset;
 
-// Lobby code generator
+// ---------------------------------------------------------
+// Draft rules
+// app.js is a classic script and runs before this deferred module, so the
+// turn table is already on window by the time anything here is called.
+// ---------------------------------------------------------
+const TURNS = () => window.DRAFT_TURNS || [];
+const TURN_DURATION = () => window.DRAFT_TURN_DURATION || 25;
+const BANS_PER_SIDE = 5;
+
+// Ban slots are stored as an object map, not an array. Firebase silently
+// converts sparse arrays (which is what an array with nulls becomes) into
+// objects, so storing them as objects up front avoids the shape flip-flop.
+function usedGods(state) {
+  const used = new Set();
+  Object.values(state.picks || {}).forEach(g => g && used.add(g));
+  ["blue", "red"].forEach(team => {
+    Object.values(state.bans?.[team] || {}).forEach(g => g && used.add(g));
+  });
+  return used;
+}
+
+const VALID_SLOT = /^[BR][1-5]$/;
+const VALID_GOD = /^[A-Za-z0-9 '\-]{1,32}$/;
+
+// ---------------------------------------------------------
+// Lobby codes
+// ---------------------------------------------------------
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const genCode = (len = 5) =>
   Array.from({ length: len }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join("");
 
-// Global state
+// ---------------------------------------------------------
+// Connection state
+// ---------------------------------------------------------
 let currentCode = null;
 let unsubscribe = null;
 
-// Realtime API
+function listenToState(code) {
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onValue(ref(db, `lobbies/${code}/state`), snap => {
+    const state = snap.val();
+    if (!state) return;
+    state.__serverOffset = serverOffset;
+    window.__draftState = state;
+    window.dispatchEvent(new CustomEvent("lobby:state", { detail: state }));
+  });
+}
+
+const stateRef = () => ref(db, `lobbies/${currentCode}/state`);
+
+// Every mutation goes through here. runTransaction re-runs the mutator
+// against the freshest server value and retries on conflict, so two clients
+// acting at the same instant can't both advance the turn counter off the
+// same stale read. Returning undefined aborts the write.
+async function mutate(mutator) {
+  if (!currentCode) return false;
+  const result = await runTransaction(stateRef(), current => {
+    if (!current) return undefined;
+    return mutator(current);
+  });
+  return result.committed;
+}
+
+function startTurnClock(state) {
+  state.timer = state.timer || {};
+  state.timer.duration = TURN_DURATION();
+  state.timer.startAt = serverNow();
+  state.updatedAt = serverNow();
+  return state;
+}
+
+// ---------------------------------------------------------
+// Public API
+// ---------------------------------------------------------
 const RT = {
   isConnected: () => currentCode !== null,
   currentCode: () => currentCode,
   getClientId: () => clientId,
+  getServerNow: serverNow,
 
   async createLobby() {
-    currentCode = genCode();
-    await set(ref(db, `lobbies/${currentCode}`), {
+    const code = genCode();
+    await set(ref(db, `lobbies/${code}`), {
       state: {
         names: { blue: "Blue Side", red: "Red Side" },
         owners: { blue: clientId, red: null },
         spectators: {},
-        timer: { duration: 25, startAt: null },
+        timer: { duration: TURN_DURATION(), startAt: null },
         picks: {},
-        bans: { blue: [null, null, null, null, null], red: [null, null, null, null, null] },
+        bans: { blue: {}, red: {} },
         ready: { blue: false, red: false },
         currentTurnIndex: 0,
         draftEnded: false,
         draftResult: null,
+        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }
     });
-    listenToState(currentCode);
-    return currentCode;
-  },
-
-  async joinLobby(code) {
     currentCode = code;
     listenToState(code);
-    
-    // Wait for state to load
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const state = window.__draftState;
-    if (state) {
-      const myId = clientId;
-      
-      // Check if I already own a side
-      if (state.owners?.blue === myId || state.owners?.red === myId) {
-        return; // Already claimed a side
-      }
-      
-      // Auto-claim red if it's available
-      if (!state.owners?.red) {
-        await RT.claimSide("red", "Red Side");
-      } else if (!state.owners?.blue) {
-        // If red is taken but blue is somehow free, claim blue
-        await RT.claimSide("blue", "Blue Side");
-      }
-    }
+    return code;
   },
 
   async checkLobbyState(code) {
     try {
-      const lobbyRef = ref(db, `lobbies/${code}/state`);
-      const snap = await get(lobbyRef);
+      const snap = await get(ref(db, `lobbies/${code}/state`));
       return snap.val();
     } catch (error) {
       console.error("Error checking lobby state:", error);
@@ -110,171 +168,192 @@ const RT = {
     }
   },
 
+  // Claims a free side and returns which one, or null if the lobby filled
+  // up first. No setTimeout guesswork — the state is read, not waited for.
+  async joinLobby(code, knownState = null) {
+    const state = knownState || (await RT.checkLobbyState(code));
+    if (!state) throw new Error("Lobby not found");
+
+    currentCode = code;
+    listenToState(code);
+
+    if (state.owners?.blue === clientId) return "blue";
+    if (state.owners?.red === clientId) return "red";
+
+    for (const side of ["red", "blue"]) {
+      const claimed = await RT.claimSide(side);
+      if (claimed) return side;
+    }
+    return null;
+  },
+
+  // Atomic. Two people hitting Join at the same moment can't both take red.
+  async claimSide(side) {
+    if (!currentCode || !["blue", "red"].includes(side)) return false;
+    const result = await runTransaction(
+      ref(db, `lobbies/${currentCode}/state/owners/${side}`),
+      owner => (owner && owner !== clientId ? undefined : clientId)
+    );
+    return result.committed && result.snapshot.val() === clientId;
+  },
+
   async joinAsSpectator(code, spectatorName = "Spectator") {
     currentCode = code;
-    
-    const updates = {
+    window.__isSpectator = true; // set before listening, or the first
+                                 // state event renders the player view
+    await update(ref(db), {
       [`lobbies/${code}/state/spectators/${clientId}`]: spectatorName,
       [`lobbies/${code}/state/updatedAt`]: serverTimestamp()
-    };
-    
-    await update(ref(db), updates);
+    });
     listenToState(code);
-    
-    window.__isSpectator = true;
   },
 
-  async clearPick(slot) {
-    if (!currentCode || !slot) return;
-    if (!/^[BR][1-5]$/.test(slot)) return console.error("Invalid slot:", slot);
-
-    const updates = {
-      [`lobbies/${currentCode}/state/picks/${slot}`]: null,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-
-    await update(ref(db), updates);
-  },
-
-  async setBan(team, index, god) {
-    if (!currentCode) return;
-    if (!["blue", "red"].includes(team)) return console.error("Invalid team:", team);
-    if (typeof index !== "number" || index < 0 || index > 4) return console.error("Invalid ban index:", index);
-    if (typeof god !== "string" || god.includes(".") || god.includes("/")) return console.error("Invalid god name:", god);
-
-    const path = `lobbies/${currentCode}/state/bans/${team}`;
-
-    try {
-      const bansSnap = await get(ref(db, path));
-      let bans = bansSnap.val() || [null, null, null, null, null];
-      while (bans.length < 5) bans.push(null);
-
-      bans[index] = god;
-
-      const updates = {
-        [path]: bans,
-        [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
-        [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-      };
-
-      console.log("✅ Updating bans:", updates);
-      await update(ref(db), updates);
-    } catch (err) {
-      console.error("🔥 Firebase setBan failed:", err);
+  // -------------------------------------------------------
+  // Draft actions. Each one re-validates the turn server-side
+  // before it commits, so a stale or malicious client can't
+  // pick out of order or fill someone else's slot.
+  // -------------------------------------------------------
+  async setPick(slot, god, expectedTurn) {
+    if (!VALID_SLOT.test(slot) || !VALID_GOD.test(god)) {
+      console.error("Rejected pick:", slot, god);
+      return false;
     }
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      if (state.currentTurnIndex !== expectedTurn) return undefined;
+
+      const turn = TURNS()[expectedTurn];
+      if (!turn || turn.type !== "pick" || turn.slot !== slot) return undefined;
+      if (state.owners?.[turn.team] !== clientId) return undefined;
+      if (state.picks?.[slot]) return undefined;
+      if (usedGods(state).has(god)) return undefined;
+
+      state.picks = state.picks || {};
+      state.picks[slot] = god;
+      state.currentTurnIndex = expectedTurn + 1;
+      return startTurnClock(state);
+    });
   },
 
-  async setPick(slot, god) {
-    if (!currentCode || !slot || typeof god !== "string") return;
-    if (!/^[BR][1-5]$/.test(slot)) return console.error("Invalid slot:", slot);
+  async setBan(team, index, god, expectedTurn) {
+    if (!["blue", "red"].includes(team)) return false;
+    if (!Number.isInteger(index) || index < 0 || index >= BANS_PER_SIDE) return false;
+    if (!VALID_GOD.test(god)) {
+      console.error("Rejected ban:", god);
+      return false;
+    }
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      if (state.currentTurnIndex !== expectedTurn) return undefined;
 
-    const updates = {
-      [`lobbies/${currentCode}/state/picks/${slot}`]: god,
-      [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
+      const turn = TURNS()[expectedTurn];
+      if (!turn || turn.type !== "ban") return undefined;
+      if (turn.team !== team || turn.index !== index) return undefined;
+      if (state.owners?.[team] !== clientId) return undefined;
+      if (usedGods(state).has(god)) return undefined;
 
-    await update(ref(db), updates);
+      state.bans = state.bans || {};
+      state.bans[team] = state.bans[team] || {};
+      state.bans[team][index] = god;
+      state.currentTurnIndex = expectedTurn + 1;
+      return startTurnClock(state);
+    });
+  },
+
+  // Undo only works on your own most recent action, and it rewinds the
+  // turn counter along with the slot. Clearing without the rewind is what
+  // used to strand a lobby mid-draft.
+  async clearPick(slot) {
+    if (!VALID_SLOT.test(slot)) return false;
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      const prev = (state.currentTurnIndex || 0) - 1;
+      const turn = TURNS()[prev];
+      if (!turn || turn.type !== "pick" || turn.slot !== slot) return undefined;
+      if (state.owners?.[turn.team] !== clientId) return undefined;
+      if (!state.picks?.[slot]) return undefined;
+
+      state.picks[slot] = null;
+      state.currentTurnIndex = prev;
+      return startTurnClock(state);
+    });
   },
 
   async clearBan(team, index) {
-    if (!currentCode) return;
-    if (!["blue", "red"].includes(team)) return;
-    if (index < 0 || index > 4) return;
+    if (!["blue", "red"].includes(team)) return false;
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      const prev = (state.currentTurnIndex || 0) - 1;
+      const turn = TURNS()[prev];
+      if (!turn || turn.type !== "ban") return undefined;
+      if (turn.team !== team || turn.index !== index) return undefined;
+      if (state.owners?.[team] !== clientId) return undefined;
+      if (!state.bans?.[team]?.[index]) return undefined;
 
-    const updates = {
-      [`lobbies/${currentCode}/state/bans/${team}/${index}`]: null,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-
-    await update(ref(db), updates);
+      state.bans[team][index] = null;
+      state.currentTurnIndex = prev;
+      return startTurnClock(state);
+    });
   },
 
+  async skipBan(expectedTurn) {
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      if (state.currentTurnIndex !== expectedTurn) return undefined;
+      const turn = TURNS()[expectedTurn];
+      if (!turn || turn.type !== "ban") return undefined;
+
+      state.currentTurnIndex = expectedTurn + 1;
+      return startTurnClock(state);
+    });
+  },
+
+  async forfeitDraft(team, expectedTurn = null) {
+    if (!["blue", "red"].includes(team)) return false;
+    return mutate(state => {
+      if (state.draftEnded) return undefined;
+      if (expectedTurn !== null && state.currentTurnIndex !== expectedTurn) return undefined;
+
+      state.draftEnded = true;
+      state.draftResult = `${team}_forfeit`;
+      state.timer = state.timer || {};
+      state.timer.startAt = null;
+      state.updatedAt = serverNow();
+      return state;
+    });
+  },
+
+  // -------------------------------------------------------
+  // Lobby housekeeping
+  // -------------------------------------------------------
   async updateName(side, name) {
     if (!currentCode || !["blue", "red"].includes(side)) return;
-    const updates = {
-      [`lobbies/${currentCode}/state/names/${side}`]: name,
+    await update(ref(db), {
+      [`lobbies/${currentCode}/state/names/${side}`]: String(name).slice(0, 40),
       [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
+    });
   },
 
   async setReady(side, isReady) {
     if (!currentCode || !["blue", "red"].includes(side)) return;
-    const updates = {
-      [`lobbies/${currentCode}/state/ready/${side}`]: isReady,
+    await update(ref(db), {
+      [`lobbies/${currentCode}/state/ready/${side}`]: !!isReady,
       [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
+    });
   },
 
-  async claimSide(side, name) {
-    if (!currentCode || !["blue", "red"].includes(side)) return;
-    
-    // First check if this side is already taken
-    const stateSnap = await get(ref(db, `lobbies/${currentCode}/state/owners/${side}`));
-    if (stateSnap.val() && stateSnap.val() !== clientId) {
-      console.log(`${side} side already claimed by another player`);
-      return;
-    }
-    
-    const updates = {
-      [`lobbies/${currentCode}/state/owners/${side}`]: clientId,
-      [`lobbies/${currentCode}/state/names/${side}`]: name,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
-  },
-
-  async resetTimer(duration = 25) {
+  async resetTimer(duration = TURN_DURATION()) {
     if (!currentCode) return;
-    const updates = {
+    await update(ref(db), {
       [`lobbies/${currentCode}/state/timer/duration`]: duration,
       [`lobbies/${currentCode}/state/timer/startAt`]: serverTimestamp(),
       [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
+    });
   },
 
-  async startTimer(duration = 25) {
+  async startTimer(duration = TURN_DURATION()) {
     return RT.resetTimer(duration);
-  },
-
-  // New function to skip a ban and advance turn
-  async skipBan() {
-    if (!currentCode) return;
-    const updates = {
-      [`lobbies/${currentCode}/state/currentTurnIndex`]: (window.__draftState?.currentTurnIndex || 0) + 1,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
-  },
-
-  // New function to forfeit draft
-  async forfeitDraft(team) {
-    if (!currentCode || !["blue", "red"].includes(team)) return;
-    const updates = {
-      [`lobbies/${currentCode}/state/draftEnded`]: true,
-      [`lobbies/${currentCode}/state/draftResult`]: `${team}_forfeit`,
-      [`lobbies/${currentCode}/state/updatedAt`]: serverTimestamp()
-    };
-    await update(ref(db), updates);
   }
 };
 
-// Firebase listener
-function listenToState(code) {
-  if (unsubscribe) unsubscribe();
-  const stateRef = ref(db, `lobbies/${code}/state`);
-  unsubscribe = onValue(stateRef, (snap) => {
-    const state = snap.val();
-    if (state) {
-      state.__serverOffset = serverOffset;
-      window.__draftState = state;
-      window.dispatchEvent(new CustomEvent("lobby:state", { detail: state }));
-    }
-  });
-}
-
-// Expose globally
 window.RT = RT;

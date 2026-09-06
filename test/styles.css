@@ -28,9 +28,6 @@
   /* Adjusted slot sizes */
   --slot: clamp(70px, 8.5vw, 96px);
   --slot-sm: clamp(56px, 7vw, 72px);
-  /* 5 bans per side = 10 across, so these get their own smaller token */
-  --slot-ban: clamp(40px, 4.6vw, 64px);
-  --slot-ban-spec: clamp(52px, 4.4vw, 78px);
 
   --fs-label: clamp(12px, 1.7vw, 16px);
   --fs-side: clamp(14px, 2vw, 22px);
@@ -281,12 +278,11 @@ body::before {
 
 /* Bans Layout */
 .bans-container {
-  display: flex; justify-content: center; align-items: center;
-  flex-wrap: wrap; width: 100%;
-  gap: 12px; margin: 4px 0; padding: 0 8px;
+  display: flex; justify-content: center; width: 100%;
+  gap: 12px; margin: 4px 0;
 }
 .bans {
-  display: flex; align-items: center; padding: 5px 7px;
+  display: flex; align-items: center; padding: 6px 8px;
   border-radius: var(--r-md);
   background: linear-gradient(180deg, rgba(23,28,46,.72), rgba(20,24,40,.5));
   border: 1px solid var(--stroke);
@@ -338,7 +334,6 @@ body::before {
 
 /* Slot & Card Styles */
 .pick-slot, .ban-slot {
-  position: relative;
   display: flex; align-items: center; justify-content: center;
   margin: 6px; border-radius: var(--r-md); border: 1px solid var(--stroke);
   background: var(--panel-solid); backdrop-filter: blur(var(--blur));
@@ -346,7 +341,7 @@ body::before {
   transition: box-shadow var(--t-fast), transform var(--t-fast), border-color var(--t-fast);
 }
 .pick-slot { width: var(--slot); height: var(--slot); }
-.ban-slot { width: var(--slot-ban); height: var(--slot-ban); margin: 3px; }
+.ban-slot { width: var(--slot-sm); height: var(--slot-sm); }
 .pick-slot.blue-slot {
   background: linear-gradient(180deg, rgba(22,28,44,.9), rgba(14,22,36,.75));
   box-shadow: 0 0 0 1px rgba(59,130,246,.28), inset 0 0 0 1px rgba(255,255,255,.06), var(--aura);
@@ -414,9 +409,7 @@ body::before {
 
 /* Banned Overlay */
 .banned-container {
-  position: relative;
-  width: var(--slot-ban);
-  height: var(--slot-ban);
+  position: relative; width: var(--slot); height: var--slot;
 }
 .diagonal-line {
   position: absolute; width: 140%; height: 3px;
@@ -477,10 +470,9 @@ body::before {
 @media (max-width: 480px) {
   .blue-side-label, .red-side-label { font-size: 16px; }
   .timer-button { padding: 10px 16px; font-size: 14px; }
-  .pick-slot, .character-image {
+  .pick-slot, .ban-slot, .character-image {
     width: var(--slot-sm); height: var(--slot-sm);
   }
-  .ban-slot { width: var(--slot-ban); height: var(--slot-ban); }
   .character-card {
     width: clamp(84px, 34vw, 100px);
     height: clamp(104px, 40vw, 128px);
@@ -490,8 +482,8 @@ body::before {
 }
 
 .character-image.resized {
-  width: var(--slot-ban);
-  height: var(--slot-ban);
+  width: var(--slot-sm);
+  height: var(--slot-sm);
   object-fit: cover;
 }
 
@@ -712,12 +704,12 @@ body::before {
 
 .ban-grid {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .ban-slot-spec {
-  width: var(--slot-ban-spec);
-  height: var(--slot-ban-spec);
+  width: 81px;
+  height: 81px;
   border-radius: 8px;
   background: linear-gradient(135deg, rgba(38,44,62,0.7), rgba(28,32,46,0.5));
   border: 1.5px solid;
@@ -994,8 +986,7 @@ body::before {
   }
   
   .bans-section {
-    flex-direction: column;
-    gap: 16px;
+    gap: 24px;
     padding: 12px 16px;
   }
   
@@ -1003,162 +994,4 @@ body::before {
     padding: 16px;
     gap: 16px;
   }
-}
-
-/* ===============================
-   Slot lock states
-   The JS has always toggled these classes; they had no rules, so the
-   board gave no feedback about what you were and weren't allowed to touch.
-   =============================== */
-
-/* Belongs to the other team. */
-.pick-slot.slot-locked,
-.ban-slot.slot-locked {
-  cursor: not-allowed;
-  opacity: .72;
-  filter: saturate(.7);
-  border-style: dashed;
-  border-color: var(--stroke);
-}
-.pick-slot.slot-locked:hover,
-.ban-slot.slot-locked:hover {
-  transform: none;
-}
-
-/* Draft hasn't started — nothing is droppable yet. */
-.pick-slot.locked-slot,
-.ban-slot.locked-slot {
-  cursor: not-allowed;
-}
-.pick-slot.locked-slot:hover,
-.ban-slot.locked-slot:hover {
-  transform: none;
-}
-.pick-slot.locked-slot::before,
-.ban-slot.locked-slot::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(10, 13, 26, .38) 0 6px,
-    rgba(10, 13, 26, .12) 6px 12px
-  );
-  pointer-events: none;
-}
-
-/* An empty slot that is locked shouldn't also pulse as the active turn. */
-.pick-slot.locked-slot.active-turn,
-.ban-slot.locked-slot.active-turn {
-  animation: none;
-}
-
-/* Active role filter */
-.filter-icon.filter-active {
-  filter: drop-shadow(0 0 8px rgba(201, 160, 64, .8)) brightness(1.15);
-  transform: translateY(-1px) scale(1.08);
-}
-
-/* ===============================
-   Spectator ban artwork
-   =============================== */
-.ban-slot-art {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  border-radius: calc(var(--r-md) - 2px);
-  filter: grayscale(85%) brightness(.7);
-}
-
-/* ===============================
-   Forfeit result modal
-   Previously built with inline styles and a <style> tag injected on every
-   call. It lives here now so it is written once.
-   =============================== */
-.result-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, .9);
-  backdrop-filter: blur(10px);
-}
-
-.result-modal {
-  max-width: 550px;
-  width: 100%;
-  padding: clamp(28px, 5vw, 50px);
-  text-align: center;
-  border: 3px solid var(--gold);
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(30, 34, 48, .98), rgba(22, 26, 40, .95));
-  box-shadow: 0 25px 50px rgba(0, 0, 0, .8), 0 0 30px rgba(201, 160, 64, .3);
-  animation: result-in .4s ease-out;
-}
-
-@keyframes result-in {
-  from { opacity: 0; transform: translateY(-40px) scale(.94); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.result-icon { font-size: 48px; margin-bottom: 16px; }
-
-.result-title {
-  margin: 0 0 20px;
-  font-size: clamp(24px, 4vw, 32px);
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-shadow: 0 2px 10px rgba(201, 160, 64, .5);
-}
-
-.result-detail {
-  margin: 0 0 4px;
-  font-size: clamp(15px, 2.4vw, 20px);
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-.result-rule {
-  height: 2px;
-  margin: 24px 0;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-
-.result-winner {
-  margin: 0 0 28px;
-  font-size: clamp(19px, 3.2vw, 26px);
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.result-detail.blue, .result-winner.blue { color: #60a5fa; }
-.result-detail.red,  .result-winner.red  { color: #f87171; }
-
-.result-close {
-  padding: 15px 34px;
-  border: none;
-  border-radius: 10px;
-  font: inherit;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #0a0d1a;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--gold), var(--gold-2));
-  box-shadow: 0 4px 15px rgba(201, 160, 64, .4);
-  transition: transform var(--t-fast), filter var(--t-fast), box-shadow var(--t-fast);
-}
-.result-close:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.15);
-  box-shadow: 0 6px 20px rgba(201, 160, 64, .6);
 }
