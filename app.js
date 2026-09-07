@@ -145,59 +145,56 @@ const characters = [
 //    Pick 2  R4 B4 B5 R5
 //
 //  Every turn names the exact slot it fills, so drops are validated
-//  against it instead of guessed at. `phase` drives the broadcast label.
+//  against it instead of guessed at. `phase` drives the readouts.
 // ==========================================================
 const TURN_ORDER = [
   // --- Ban phase 1 — blue first, 3 each ---
-  { type: 'ban',  team: 'blue', index: 0, phase: 'Ban Phase 1'  }, //  0
-  { type: 'ban',  team: 'red',  index: 0, phase: 'Ban Phase 1'  }, //  1
-  { type: 'ban',  team: 'blue', index: 1, phase: 'Ban Phase 1'  }, //  2
-  { type: 'ban',  team: 'red',  index: 1, phase: 'Ban Phase 1'  }, //  3
-  { type: 'ban',  team: 'blue', index: 2, phase: 'Ban Phase 1'  }, //  4
-  { type: 'ban',  team: 'red',  index: 2, phase: 'Ban Phase 1'  }, //  5
+  { type: 'ban',  team: 'blue', index: 0, phase: 'First bans'  }, //  0
+  { type: 'ban',  team: 'red',  index: 0, phase: 'First bans'  }, //  1
+  { type: 'ban',  team: 'blue', index: 1, phase: 'First bans'  }, //  2
+  { type: 'ban',  team: 'red',  index: 1, phase: 'First bans'  }, //  3
+  { type: 'ban',  team: 'blue', index: 2, phase: 'First bans'  }, //  4
+  { type: 'ban',  team: 'red',  index: 2, phase: 'First bans'  }, //  5
 
   // --- Pick phase 1 ---
-  { type: 'pick', team: 'blue', slot: 'B1', phase: 'Pick Phase 1' }, //  6
-  { type: 'pick', team: 'red',  slot: 'R1', phase: 'Pick Phase 1' }, //  7
-  { type: 'pick', team: 'red',  slot: 'R2', phase: 'Pick Phase 1' }, //  8
-  { type: 'pick', team: 'blue', slot: 'B2', phase: 'Pick Phase 1' }, //  9
-  { type: 'pick', team: 'blue', slot: 'B3', phase: 'Pick Phase 1' }, // 10
-  { type: 'pick', team: 'red',  slot: 'R3', phase: 'Pick Phase 1' }, // 11
+  { type: 'pick', team: 'blue', slot: 'B1', phase: 'First picks' }, //  6
+  { type: 'pick', team: 'red',  slot: 'R1', phase: 'First picks' }, //  7
+  { type: 'pick', team: 'red',  slot: 'R2', phase: 'First picks' }, //  8
+  { type: 'pick', team: 'blue', slot: 'B2', phase: 'First picks' }, //  9
+  { type: 'pick', team: 'blue', slot: 'B3', phase: 'First picks' }, // 10
+  { type: 'pick', team: 'red',  slot: 'R3', phase: 'First picks' }, // 11
 
   // --- Ban phase 2 — red first, 2 each ---
-  { type: 'ban',  team: 'red',  index: 3, phase: 'Ban Phase 2'  }, // 12
-  { type: 'ban',  team: 'blue', index: 3, phase: 'Ban Phase 2'  }, // 13
-  { type: 'ban',  team: 'red',  index: 4, phase: 'Ban Phase 2'  }, // 14
-  { type: 'ban',  team: 'blue', index: 4, phase: 'Ban Phase 2'  }, // 15
+  { type: 'ban',  team: 'red',  index: 3, phase: 'Second bans'  }, // 12
+  { type: 'ban',  team: 'blue', index: 3, phase: 'Second bans'  }, // 13
+  { type: 'ban',  team: 'red',  index: 4, phase: 'Second bans'  }, // 14
+  { type: 'ban',  team: 'blue', index: 4, phase: 'Second bans'  }, // 15
 
   // --- Pick phase 2 ---
-  { type: 'pick', team: 'red',  slot: 'R4', phase: 'Pick Phase 2' }, // 16
-  { type: 'pick', team: 'blue', slot: 'B4', phase: 'Pick Phase 2' }, // 17
-  { type: 'pick', team: 'blue', slot: 'B5', phase: 'Pick Phase 2' }, // 18
-  { type: 'pick', team: 'red',  slot: 'R5', phase: 'Pick Phase 2' }  // 19
+  { type: 'pick', team: 'red',  slot: 'R4', phase: 'Second picks' }, // 16
+  { type: 'pick', team: 'blue', slot: 'B4', phase: 'Second picks' }, // 17
+  { type: 'pick', team: 'blue', slot: 'B5', phase: 'Second picks' }, // 18
+  { type: 'pick', team: 'red',  slot: 'R5', phase: 'Second picks' }  // 19
 ];
 
 const BANS_PER_SIDE = 5;
 const TURN_DURATION = 25;
-const BUILD = 'V3.1';
+const BUILD = 'V4.2';
 
-// Printed on load so you can confirm which build the browser actually
-// served. A cached app.js silently running an old turn table is very hard
-// to spot from the UI alone.
-console.log(
-  `%cSmite Draft ${BUILD}%c  ${TURN_ORDER.length} turns \u00b7 ${BANS_PER_SIDE} bans/side \u00b7 split ban phases`,
-  'font-weight:bold;color:#c9a040', 'color:#9ca2b8'
-);
-
-// realtime.js reads this so both files validate against the same table.
-// app.js is a classic script and runs before the deferred module, so this
-// is always set by the time realtime.js evaluates.
+// realtime.js validates against the same table. app.js is a classic script
+// and runs before the deferred module, so this is set in time.
 window.DRAFT_TURNS = TURN_ORDER;
 window.DRAFT_TURN_DURATION = TURN_DURATION;
+
+console.log(
+  `%cSmite Draft ${BUILD}%c  ${TURN_ORDER.length} turns \u00b7 ${BANS_PER_SIDE} bans/side \u00b7 split ban phases`,
+  'font-weight:bold;color:#F0C060', 'color:#8A8397'
+);
 
 // If the active player's browser dies, their opponent takes over the
 // timeout after this grace period so the draft can't hang forever.
 const OPPONENT_GRACE_MS = 4000;
+const TEAM_LABEL = { blue: 'Order', red: 'Chaos' };
 
 // ========== Globals ==========
 let currentRoleFilter = null;
@@ -207,11 +204,11 @@ let readyCountdown = null;
 let readyInProgress = false;
 let hasStartedDraft = false;
 let draftEnded = false;
-let draftResult = null;     // 'blue_forfeit' | 'red_forfeit' | null
-let resultShown = false;    // guards against stacking modals
-let timeoutFiredFor = -1;   // turn index we've already timed out on
+let draftResult = null;
+let resultShown = false;
+let timeoutFiredFor = -1;
 
-// ========== Utility Functions ==========
+// ========== Utility ==========
 function isConnected() {
   return !!window.RT?.isConnected();
 }
@@ -235,8 +232,7 @@ function canEditTarget(target) {
   return false;
 }
 
-// Firebase turns sparse arrays into objects, so bans can come back either
-// way. Always read them through this.
+// Firebase turns sparse arrays into objects, so bans come back either way.
 function banList(state, team) {
   const raw = state?.bans?.[team];
   const out = new Array(BANS_PER_SIDE).fill(null);
@@ -256,6 +252,7 @@ function iconPath(godName) {
   return `Smite Icons/${godName.replace(/ /g, '_')}S2.png`;
 }
 
+// ========== God bank ==========
 function createCharacterCard(char) {
   const card = document.createElement('div');
   card.className = 'character-card';
@@ -268,8 +265,8 @@ function createCharacterCard(char) {
   img.draggable = true;
   img.loading = 'lazy';
   img.decoding = 'async';
-  // Some icon files are lower-cased on disk (e.g. mordred.png). Case-sensitive
-  // hosts 404 on those, so fall back once before giving up.
+  // Some icon files are lower-cased on disk. Case-sensitive hosts 404 on
+  // those, so fall back once before giving up.
   img.addEventListener('error', function onErr() {
     img.removeEventListener('error', onErr);
     img.src = iconPath(char.name).toLowerCase();
@@ -285,22 +282,90 @@ function createCharacterCard(char) {
 }
 
 function greyOutCharacter(id) {
-  const img = document.getElementById(id);
-  if (img) img.classList.add('greyed-out');
+  document.getElementById(id)?.classList.add('greyed-out');
 }
-
 function removeGreyOutCharacter(id) {
-  const img = document.getElementById(id);
-  if (img) img.classList.remove('greyed-out');
+  document.getElementById(id)?.classList.remove('greyed-out');
 }
 
-function createClonedElement(id) {
-  const orig = document.getElementById(id);
-  if (!orig) return null;
-  const clone = orig.cloneNode(true);
-  clone.id = id + '-clone';
-  clone.draggable = false;
-  return clone;
+function loadCharacters() {
+  const container = document.getElementById('character-list');
+  if (!container) return;
+  container.innerHTML = '';
+  characters
+    .filter(c => c.roles.includes('Smite 2'))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(c => container.append(createCharacterCard(c)));
+  filterGods();
+}
+
+function filterGods() {
+  const text = (document.getElementById('searchBox')?.value || '').toLowerCase();
+  const byName = new Map(characters.map(c => [c.name.toLowerCase(), c]));
+  let shown = 0;
+
+  document.querySelectorAll('.character-card').forEach(card => {
+    const name = card.querySelector('.character-name').innerText.toLowerCase();
+    const char = byName.get(name);
+    const roleOk = currentRoleFilter ? !!char?.roles.includes(currentRoleFilter) : true;
+    const visible = name.includes(text) && roleOk;
+    card.style.display = visible ? '' : 'none';
+    if (visible) shown++;
+  });
+
+  const gone = document.querySelectorAll('.character-image.greyed-out').length;
+  const count = document.getElementById('poolCount');
+  if (count) count.textContent = `${gone} off the board \u00b7 ${shown} shown`;
+}
+
+function filterByRole(role) {
+  currentRoleFilter = currentRoleFilter === role ? null : role;
+  document.querySelectorAll('.filter-icon').forEach(icon => {
+    icon.classList.toggle('filter-active', icon.dataset.role === currentRoleFilter);
+  });
+  filterGods();
+}
+
+// ========== Slot painting ==========
+// One place builds slot contents, so the connected path, the solo path and
+// the initial empty render can't drift apart.
+function paintPickSlot(el, slotId, god) {
+  el.classList.toggle('filled', !!god);
+  if (!god) {
+    el.innerHTML =
+      `<div class="rim"></div><div class="tag">${slotId}</div>` +
+      `<div class="plate"><span class="who">Open</span></div>`;
+    return;
+  }
+  el.innerHTML =
+    `<div class="art" style="background-image:url('${iconPath(god)}')"></div>` +
+    `<div class="veil"></div><div class="rim"></div><div class="tag">${slotId}</div>` +
+    `<div class="plate"><span class="who">${god}</span></div>`;
+}
+
+function paintBanSlot(el, god) {
+  el.classList.toggle('filled', !!god);
+  el.innerHTML = god
+    ? `<div class="art" style="background-image:url('${iconPath(god)}')"></div><div class="slash"></div>`
+    : '';
+}
+
+function pickSlotEl(slotId) {
+  const isBlue = slotId[0] === 'B';
+  const idx = parseInt(slotId.slice(1), 10) - 1;
+  return document.querySelectorAll(
+    isBlue ? '.blue-side .pick-slot' : '.red-side .pick-slot'
+  )[idx] || null;
+}
+
+function renderEmptyBoard() {
+  ['B', 'R'].forEach(p => {
+    for (let i = 1; i <= 5; i++) {
+      const el = pickSlotEl(`${p}${i}`);
+      if (el) paintPickSlot(el, `${p}${i}`, null);
+    }
+  });
+  document.querySelectorAll('.ban-slot').forEach(el => paintBanSlot(el, null));
 }
 
 function slotIdFromTarget(target) {
@@ -320,6 +385,7 @@ function slotIdFromTarget(target) {
 function banIndexFromTarget(target) {
   for (const team of ['blue', 'red']) {
     if (target.closest(`.bans.${team}`)) {
+      // DOM order is 0..4 even though red renders mirrored in CSS.
       const slots = [...document.querySelectorAll(`.bans.${team} .ban-slot`)];
       const idx = slots.indexOf(target);
       return idx >= 0 ? { team, index: idx } : null;
@@ -328,52 +394,35 @@ function banIndexFromTarget(target) {
   return null;
 }
 
-// ========== Rendering ==========
+// ========== Board rendering ==========
 function renderDraftFromState(state) {
-  document.querySelectorAll('.pick-slot, .ban-slot').forEach(el => (el.innerHTML = ''));
   document.querySelectorAll('.character-image.greyed-out')
     .forEach(img => img.classList.remove('greyed-out'));
 
-  const applyPick = (slotId, name) => {
-    if (!name || !/^[BR][1-5]$/.test(slotId)) return;
-    const isBlue = slotId[0] === 'B';
-    const idx = parseInt(slotId.slice(1), 10) - 1;
-    const slots = [...document.querySelectorAll(
-      isBlue ? '.blue-side .pick-slot' : '.red-side .pick-slot'
-    )];
-    const target = slots[idx];
-    if (!target || target.children.length) return;
-    const clone = createClonedElement(name);
-    if (!clone) return;
-    target.append(clone);
-    greyOutCharacter(name);
-  };
+  ['B', 'R'].forEach(p => {
+    for (let i = 1; i <= 5; i++) {
+      const slotId = `${p}${i}`;
+      const god = state.picks?.[slotId] || null;
+      const el = pickSlotEl(slotId);
+      if (el) paintPickSlot(el, slotId, god);
+      if (god) greyOutCharacter(god);
+    }
+  });
 
-  const applyBan = (team, index, name) => {
-    if (!name || index < 0 || index >= BANS_PER_SIDE) return;
-    const slots = [...document.querySelectorAll(`.bans.${team} .ban-slot`)];
-    const target = slots[index];
-    if (!target || target.children.length) return;
-    const clone = createClonedElement(name);
-    if (!clone) return;
-    clone.classList.add('resized');
-    const container = document.createElement('div');
-    container.className = 'banned-container';
-    const diag = document.createElement('div');
-    diag.className = 'diagonal-line';
-    container.append(clone, diag);
-    target.append(container);
-    greyOutCharacter(name);
-  };
-
-  Object.entries(state.picks || {}).forEach(([slot, name]) => applyPick(slot, name));
-  banList(state, 'blue').forEach((name, i) => applyBan('blue', i, name));
-  banList(state, 'red').forEach((name, i) => applyBan('red', i, name));
+  ['blue', 'red'].forEach(team => {
+    const slots = document.querySelectorAll(`.bans.${team} .ban-slot`);
+    banList(state, team).forEach((god, i) => {
+      if (slots[i]) paintBanSlot(slots[i], god);
+      if (god) greyOutCharacter(god);
+    });
+  });
 
   // Nothing is droppable until both sides have readied up.
   const bothReady = !!(state.ready?.blue && state.ready?.red);
   document.querySelectorAll('.ban-slot, .pick-slot')
     .forEach(slot => slot.classList.toggle('locked-slot', !bothReady));
+
+  filterGods();
 }
 
 function highlightActiveSlot(turnIndex) {
@@ -381,58 +430,85 @@ function highlightActiveSlot(turnIndex) {
     .forEach(slot => slot.classList.remove('active-turn', 'inactive-turn'));
 
   const turn = TURN_ORDER[turnIndex];
-  if (!turn) return;
+  if (!turn || draftEnded) return;
 
-  let target = null;
-  if (turn.type === 'ban') {
-    target = document.querySelectorAll(`.bans.${turn.team} .ban-slot`)[turn.index];
-  } else {
-    const isBlue = turn.slot[0] === 'B';
-    const idx = parseInt(turn.slot.slice(1), 10) - 1;
-    target = document.querySelectorAll(
-      isBlue ? '.blue-side .pick-slot' : '.red-side .pick-slot'
-    )[idx];
-  }
-  if (!target) return;
+  const target = turn.type === 'ban'
+    ? document.querySelectorAll(`.bans.${turn.team} .ban-slot`)[turn.index]
+    : pickSlotEl(turn.slot);
 
-  target.classList.add('active-turn');
-  document.querySelectorAll('.pick-slot, .ban-slot').forEach(slot => {
-    if (slot !== target) slot.classList.add('inactive-turn');
-  });
+  if (target) target.classList.add('active-turn');
 }
 
 function updateSideOwnershipIndicators() {
   const mine = mySide();
-  const blue = document.querySelector('.side-container.blue-side');
-  const red = document.querySelector('.side-container.red-side');
-
-  [blue, red].forEach(c => c && c.classList.remove('my-side', 'blue', 'red'));
+  document.querySelectorAll('.side-container').forEach(c => c.classList.remove('my-side'));
   if (window.__isSpectator || !mine) return;
-
-  if (mine === 'blue' && blue) blue.classList.add('my-side', 'blue');
-  if (mine === 'red' && red) red.classList.add('my-side', 'red');
+  document.querySelector(mine === 'blue' ? '.blue-side' : '.red-side')
+    ?.classList.add('my-side');
 }
 
-// ========== Shared Timer ==========
+// ========== The keep: phase readout + clock ==========
+function renderPhaseBanner(state) {
+  const phaseEl = document.getElementById('keepPhase');
+  const turnEl = document.getElementById('keepTurn');
+  if (!phaseEl || !turnEl) return;
+
+  if (draftEnded) {
+    phaseEl.textContent = 'Draft over';
+    turnEl.textContent = draftResult
+      ? `${TEAM_LABEL[draftResult.startsWith('blue') ? 'red' : 'blue']} wins by forfeit`
+      : 'Complete';
+    return;
+  }
+
+  const turn = TURN_ORDER[state.currentTurnIndex || 0];
+  if (!turn) {
+    phaseEl.textContent = 'Draft complete';
+    turnEl.textContent = 'All picks locked';
+    return;
+  }
+
+  const bothReady = !!(state.ready?.blue && state.ready?.red);
+  phaseEl.textContent = bothReady ? turn.phase : 'Ready up';
+  turnEl.textContent = !bothReady
+    ? 'Both sides must ready'
+    : turn.team === mySide()
+      ? `Your ${turn.type}`
+      : `${TEAM_LABEL[turn.team]} to ${turn.type}`;
+}
+
 function renderSharedTimer(state) {
   const display = document.getElementById('timerDisplay');
+  const wrap = document.getElementById('timerDrainWrap');
+  const bar = document.getElementById('timerDrain');
   if (!display) return;
 
   if (!state?.timer?.startAt || !state?.timer?.duration || draftEnded) {
     display.style.display = 'none';
+    if (wrap) wrap.style.display = 'none';
     clearInterval(timerInterval);
     timerInterval = null;
     return;
   }
 
-  const endAt = state.timer.startAt + state.timer.duration * 1000;
+  const total = state.timer.duration * 1000;
+  const endAt = state.timer.startAt + total;
   const offset = state.__serverOffset || 0;
   const getNow = () => Date.now() + offset;
 
   const update = () => {
     const remaining = Math.max(0, endAt - getNow());
-    display.textContent = Math.ceil(remaining / 1000);
+    const secs = Math.ceil(remaining / 1000);
+    const urgent = secs <= 5;
+
+    display.textContent = secs;
     display.style.display = 'block';
+    display.classList.toggle('urgent', urgent);
+    if (wrap) wrap.style.display = 'block';
+    if (bar) {
+      bar.style.width = `${Math.max(0, (remaining / total) * 100)}%`;
+      bar.classList.toggle('urgent', urgent);
+    }
     if (remaining > 0 || draftEnded) return;
 
     const turnIndex = state.currentTurnIndex || 0;
@@ -440,11 +516,9 @@ function renderSharedTimer(state) {
     const me = mySide();
     if (!turn || !me || timeoutFiredFor === turnIndex) return;
 
-    // The team on the clock fires immediately. The opponent only takes
-    // over after a grace period, which covers a dropped connection.
-    const iAmOnTheClock = turn.team === me;
-    const pastZero = getNow() - endAt;
-    if (!iAmOnTheClock && pastZero < OPPONENT_GRACE_MS) return;
+    // The team on the clock fires immediately. The opponent takes over
+    // after a grace period, which covers a dropped connection.
+    if (turn.team !== me && getNow() - endAt < OPPONENT_GRACE_MS) return;
 
     timeoutFiredFor = turnIndex;
     clearInterval(timerInterval);
@@ -459,16 +533,13 @@ function renderSharedTimer(state) {
 
 function handleTimeout(state) {
   if (draftEnded) return;
-
   const turnIndex = state.currentTurnIndex || 0;
   const turn = TURN_ORDER[turnIndex];
   if (!turn) return;
 
   if (turn.type === 'ban') {
-    // A missed ban is just skipped.
     window.RT?.skipBan(turnIndex).catch(err => console.error('skipBan failed:', err));
   } else {
-    // A missed pick forfeits the draft.
     draftEnded = true;
     draftResult = `${turn.team}_forfeit`;
     window.RT?.forfeitDraft(turn.team, turnIndex)
@@ -505,30 +576,6 @@ function renderSpectatorTimer(state) {
   spectatorTimerInterval = setInterval(update, 200);
 }
 
-// Names the current phase and whose turn it is, right above the clock.
-// Without this the only cue is a gold outline on one slot, which is easy
-// to misread when the phases interleave.
-function renderPhaseBanner(state) {
-  const banner = document.getElementById('phaseBanner');
-  if (!banner) return;
-
-  const turn = TURN_ORDER[state.currentTurnIndex || 0];
-  if (!turn || draftEnded) {
-    banner.style.display = 'none';
-    return;
-  }
-
-  const mine = mySide();
-  const label = turn.team === 'blue' ? 'Blue' : 'Red';
-  banner.textContent = turn.team === mine
-    ? `${turn.phase} \u2014 your ${turn.type}`
-    : `${turn.phase} \u2014 ${label} to ${turn.type}`;
-  banner.classList.toggle('is-mine', turn.team === mine);
-  banner.classList.toggle('blue', turn.team === 'blue');
-  banner.classList.toggle('red', turn.team === 'red');
-  banner.style.display = 'block';
-}
-
 function stopAllTimers() {
   clearInterval(timerInterval);
   clearInterval(spectatorTimerInterval);
@@ -538,10 +585,9 @@ function stopAllTimers() {
   readyCountdown = null;
 }
 
-// ========== Ready-up Countdown ==========
+// ========== Ready-up ==========
 function initiateReadyCountdown() {
   if (hasStartedDraft || readyInProgress) return;
-
   const display = document.getElementById('startCountdown');
   if (!display) return;
 
@@ -550,20 +596,22 @@ function initiateReadyCountdown() {
   let secondsLeft = 5;
 
   display.style.display = 'block';
-  display.textContent = `Draft starting in ${secondsLeft}...`;
+  display.textContent = `Draft starts in ${secondsLeft}`;
 
   const tick = () => {
     secondsLeft--;
     if (secondsLeft > 0) {
-      display.textContent = `Draft starting in ${secondsLeft}...`;
+      display.textContent = `Draft starts in ${secondsLeft}`;
       readyCountdown = setTimeout(tick, 1000);
       return;
     }
     display.style.display = 'none';
     readyInProgress = false;
     hasStartedDraft = true;
-    // Only the blue owner starts the clock, so the two clients don't
-    // both write a start time and shave a few hundred ms off the turn.
+    const controls = document.getElementById('readyControls');
+    if (controls) controls.style.display = 'none';
+    // Only blue starts the clock, so two clients don't both write a start
+    // time and shave a few hundred ms off the turn.
     if (mySide() === 'blue') window.RT?.startTimer(TURN_DURATION);
   };
 
@@ -579,14 +627,36 @@ function cancelAllCountdowns() {
   if (display) display.style.display = 'none';
 }
 
-// ========== Forfeit Modal ==========
+function updateReadyButtons(state) {
+  const blueBtn = document.getElementById('blueReadyBtn');
+  const redBtn = document.getElementById('redReadyBtn');
+  if (!state || !blueBtn || !redBtn) return;
+
+  const myId = window.RT?.getClientId();
+  const blueReady = !!state.ready?.blue;
+  const redReady = !!state.ready?.red;
+
+  blueBtn.textContent = blueReady ? 'Order ready' : 'Order not ready';
+  blueBtn.classList.toggle('is-ready', blueReady);
+  blueBtn.disabled = state.owners?.blue !== myId || hasStartedDraft;
+
+  redBtn.textContent = redReady ? 'Chaos ready' : 'Chaos not ready';
+  redBtn.classList.toggle('is-ready', redReady);
+  redBtn.disabled = state.owners?.red !== myId || hasStartedDraft;
+
+  const bothReady = blueReady && redReady;
+  if (bothReady && !readyInProgress && !hasStartedDraft) initiateReadyCountdown();
+  else if (!bothReady && readyInProgress) cancelAllCountdowns();
+}
+
+// ========== Forfeit modal ==========
 function showDraftResult() {
   if (!draftResult || resultShown) return;
   resultShown = true;
   stopAllTimers();
 
-  const loser = draftResult === 'blue_forfeit' ? 'Blue' : 'Red';
-  const winner = draftResult === 'blue_forfeit' ? 'Red' : 'Blue';
+  const loserKey = draftResult === 'blue_forfeit' ? 'blue' : 'red';
+  const winnerKey = loserKey === 'blue' ? 'red' : 'blue';
 
   const overlay = document.createElement('div');
   overlay.className = 'result-overlay';
@@ -596,12 +666,12 @@ function showDraftResult() {
   modal.className = 'result-modal';
   modal.innerHTML = `
     <div class="result-icon">&#9888;</div>
-    <h2 class="result-title">Draft Forfeited</h2>
-    <p class="result-detail ${loser.toLowerCase()}">
-      ${loser} side did not pick within the ${TURN_DURATION} second limit.
+    <h2 class="result-title">Draft forfeited</h2>
+    <p class="result-detail ${loserKey}">
+      ${TEAM_LABEL[loserKey]} did not pick within the ${TURN_DURATION} second limit.
     </p>
     <div class="result-rule"></div>
-    <p class="result-winner ${winner.toLowerCase()}">${winner} side wins by forfeit</p>
+    <p class="result-winner ${winnerKey}">${TEAM_LABEL[winnerKey]} wins by forfeit</p>
     <button type="button" class="result-close">Close</button>
   `;
 
@@ -610,7 +680,7 @@ function showDraftResult() {
   modal.querySelector('.result-close').addEventListener('click', () => overlay.remove());
 }
 
-// ========== Drag & Drop ==========
+// ========== Drag & drop ==========
 function drag(event) {
   event.dataTransfer.setData('text', event.target.id);
 }
@@ -634,23 +704,16 @@ function dropBan(event, fromTouch = false, id = null) {
 
   const god = fromTouch ? id : event.dataTransfer.getData('text');
   if (!god || draftEnded) return;
-  if (!target.classList.contains('ban-slot') || target.children.length) return;
+  if (!target.classList.contains('ban-slot') || target.classList.contains('filled')) return;
 
   const info = banIndexFromTarget(target);
   if (!info) return;
 
   if (!isConnected()) {
-    // Solo mode: freeform mock drafting, no turn enforcement.
-    const clone = createClonedElement(god);
-    if (!clone) return;
-    clone.classList.add('resized');
-    const container = document.createElement('div');
-    container.className = 'banned-container';
-    const diag = document.createElement('div');
-    diag.className = 'diagonal-line';
-    container.append(clone, diag);
-    target.append(container);
+    // Solo mode is freeform mock drafting — no turn enforcement.
+    paintBanSlot(target, god);
     greyOutCharacter(god);
+    filterGods();
     return;
   }
 
@@ -658,7 +721,6 @@ function dropBan(event, fromTouch = false, id = null) {
   if (!(state?.ready?.blue && state?.ready?.red)) return;
   if (!canEditTarget(target)) return;
 
-  // The turn table decides which exact slot is legal right now.
   const turnIndex = state.currentTurnIndex || 0;
   const turn = TURN_ORDER[turnIndex];
   if (!turn || turn.type !== 'ban') return;
@@ -675,16 +737,15 @@ function dropPick(event, fromTouch = false, id = null) {
 
   const god = fromTouch ? id : event.dataTransfer.getData('text');
   if (!god || draftEnded) return;
-  if (!target.classList.contains('pick-slot') || target.children.length) return;
+  if (!target.classList.contains('pick-slot') || target.classList.contains('filled')) return;
 
   const slotId = slotIdFromTarget(target);
   if (!slotId) return;
 
   if (!isConnected()) {
-    const clone = createClonedElement(god);
-    if (!clone) return;
-    target.append(clone);
+    paintPickSlot(target, slotId, god);
     greyOutCharacter(god);
+    filterGods();
     return;
   }
 
@@ -701,18 +762,17 @@ function dropPick(event, fromTouch = false, id = null) {
     .catch(err => console.error('setPick failed:', err));
 }
 
-// Clicking a filled slot undoes it. Online this only works on your own
-// most recent action, and it rewinds the turn counter with it — otherwise
-// the slot empties while the draft has already moved on, and the lobby
-// soft-locks.
+// Clicking a filled slot undoes it. Online this only works on your own most
+// recent action, and it rewinds the turn counter with it — otherwise the
+// slot empties while the draft has moved on and the lobby soft-locks.
 function removePickHandler(target) {
-  if (draftEnded || !target.firstChild) return;
-  if (!target.classList.contains('pick-slot')) return;
+  if (draftEnded || !target.classList.contains('filled')) return;
 
   if (!isConnected()) {
-    const id = target.firstChild.id.replace('-clone', '');
-    removeGreyOutCharacter(id);
-    target.innerHTML = '';
+    const god = target.querySelector('.who')?.textContent;
+    if (god) removeGreyOutCharacter(god);
+    paintPickSlot(target, slotIdFromTarget(target), null);
+    filterGods();
     return;
   }
 
@@ -724,12 +784,14 @@ function removePickHandler(target) {
 
 function removeBanClick(event) {
   const target = event.currentTarget;
-  if (draftEnded || !target.firstChild) return;
+  if (draftEnded || !target.classList.contains('filled')) return;
 
   if (!isConnected()) {
-    const el = target.firstChild.querySelector('.character-image');
-    if (el) removeGreyOutCharacter(el.id.replace('-clone', ''));
-    target.innerHTML = '';
+    const url = target.querySelector('.art')?.style.backgroundImage || '';
+    const file = url.match(/([^/"']+)S2\.png/i);
+    if (file) removeGreyOutCharacter(file[1].replace(/_/g, ' '));
+    paintBanSlot(target, null);
+    filterGods();
     return;
   }
 
@@ -747,7 +809,6 @@ function initTouchDrag() {
     dragGhost.style.left = e.clientX + 'px';
     dragGhost.style.top = e.clientY + 'px';
   };
-
   const clearTouchDrag = () => {
     clearDragOverClasses();
     if (dragGhost) dragGhost.remove();
@@ -762,12 +823,10 @@ function initTouchDrag() {
     draggingId = img.id;
     dragGhost = img.cloneNode(true);
     Object.assign(dragGhost.style, {
-      position: 'fixed',
-      pointerEvents: 'none',
-      zIndex: '9999',
-      opacity: '0.85',
+      position: 'fixed', pointerEvents: 'none', zIndex: '9999', opacity: '0.85',
+      width: '84px', height: '84px',
       transform: 'translate(-50%, -50%) scale(1.05)',
-      boxShadow: '0 12px 22px rgba(0,0,0,.45)'
+      boxShadow: '0 12px 22px rgba(0,0,0,.55)'
     });
     dragGhost.id = draggingId + '-ghost';
     document.body.append(dragGhost);
@@ -779,8 +838,8 @@ function initTouchDrag() {
     e.preventDefault();
     positionGhost(e);
     clearDragOverClasses();
-    const slot = document.elementFromPoint(e.clientX, e.clientY)?.closest('.pick-slot, .ban-slot');
-    if (slot) slot.classList.add('drag-over');
+    document.elementFromPoint(e.clientX, e.clientY)
+      ?.closest('.pick-slot, .ban-slot')?.classList.add('drag-over');
   }, { passive: false });
 
   const finish = (e) => {
@@ -800,62 +859,7 @@ function initTouchDrag() {
   document.addEventListener('pointercancel', clearTouchDrag, { passive: true });
 }
 
-// ========== Ready Buttons ==========
-function updateReadyButtons(state) {
-  const blueBtn = document.getElementById('blueReadyBtn');
-  const redBtn = document.getElementById('redReadyBtn');
-  if (!state || !blueBtn || !redBtn) return;
-
-  const myId = window.RT?.getClientId();
-  const blueReady = !!state.ready?.blue;
-  const redReady = !!state.ready?.red;
-  const iOwnBlue = state.owners?.blue === myId;
-  const iOwnRed = state.owners?.red === myId;
-
-  blueBtn.textContent = `Blue: ${blueReady ? '\u2705 Ready' : '\u274C Not Ready'}`;
-  blueBtn.disabled = !iOwnBlue || hasStartedDraft;
-  redBtn.textContent = `Red: ${redReady ? '\u2705 Ready' : '\u274C Not Ready'}`;
-  redBtn.disabled = !iOwnRed || hasStartedDraft;
-
-  const bothReady = blueReady && redReady;
-  if (bothReady && !readyInProgress && !hasStartedDraft) initiateReadyCountdown();
-  else if (!bothReady && readyInProgress) cancelAllCountdowns();
-}
-
-// ========== Search & Filter ==========
-function filterGods() {
-  const box = document.getElementById('searchBox');
-  const text = (box?.value || '').toLowerCase();
-  const byName = new Map(characters.map(c => [c.name.toLowerCase(), c]));
-
-  document.querySelectorAll('.character-card').forEach(card => {
-    const name = card.querySelector('.character-name').innerText.toLowerCase();
-    const char = byName.get(name);
-    const roleOk = currentRoleFilter ? !!char?.roles.includes(currentRoleFilter) : true;
-    card.style.display = (name.includes(text) && roleOk) ? 'inline-flex' : 'none';
-  });
-}
-
-function filterByRole(role) {
-  currentRoleFilter = currentRoleFilter === role ? null : role;
-  document.querySelectorAll('.filter-icon').forEach(icon => {
-    icon.classList.toggle('filter-active', icon.dataset.role === currentRoleFilter);
-  });
-  filterGods();
-}
-
-function loadCharacters() {
-  const container = document.getElementById('character-list');
-  if (!container) return;
-  container.innerHTML = '';
-  characters
-    .filter(c => c.roles.includes('Smite 2'))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach(c => container.append(createCharacterCard(c)));
-  filterGods();
-}
-
-// ========== Spectator Mode ==========
+// ========== Broadcast overlay ==========
 function showSpectatorMode() {
   const overlay = document.getElementById('spectatorOverlay');
   if (!overlay) return;
@@ -865,10 +869,10 @@ function showSpectatorMode() {
   const status = document.getElementById('lobbyStatus');
   if (status) status.textContent = `Watching ${window.RT?.currentCode() || ''}`;
 
-  const title = prompt('Enter tournament/match title:', 'Draft Mode') || 'Draft Mode';
+  const title = prompt('Match title:', 'Smite Draft') || 'Smite Draft';
   document.getElementById('tournamentTitle').textContent = title;
-  document.getElementById('blueScore').textContent = parseInt(prompt('Blue side score:', '0'), 10) || 0;
-  document.getElementById('redScore').textContent = parseInt(prompt('Red side score:', '0'), 10) || 0;
+  document.getElementById('blueScore').textContent = parseInt(prompt('Order score:', '0'), 10) || 0;
+  document.getElementById('redScore').textContent = parseInt(prompt('Chaos score:', '0'), 10) || 0;
 
   const escapeHandler = (e) => {
     if (e.key !== 'Escape') return;
@@ -887,10 +891,9 @@ function hideSpectatorMode() {
   window.__isSpectator = false;
   clearInterval(spectatorTimerInterval);
   spectatorTimerInterval = null;
-
   ['joinLobbyBtn', 'joinCodeInput', 'createLobbyBtn'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'inline-block';
+    if (el) el.style.display = '';
   });
 }
 
@@ -904,80 +907,63 @@ function updateSpectatorView(state) {
   const turnEl = document.getElementById('specTurn');
 
   if (state.draftEnded) {
-    phaseEl.textContent = 'Draft Over';
+    phaseEl.textContent = 'Draft over';
     turnEl.textContent = state.draftResult
-      ? `${state.draftResult.startsWith('blue') ? 'Red' : 'Blue'} wins by forfeit`
+      ? `${TEAM_LABEL[state.draftResult.startsWith('blue') ? 'red' : 'blue']} wins by forfeit`
       : 'Complete';
   } else if (turn) {
-    phaseEl.textContent = turn.phase || (turn.type === 'ban' ? 'Ban Phase' : 'Pick Phase');
-    turnEl.textContent = turn.team === 'blue' ? 'Blue Turn' : 'Red Turn';
+    phaseEl.textContent = turn.phase;
+    turnEl.textContent = `${TEAM_LABEL[turn.team]} to ${turn.type}`;
   } else {
-    phaseEl.textContent = 'Draft Complete';
-    turnEl.textContent = 'Complete';
+    phaseEl.textContent = 'Draft complete';
+    turnEl.textContent = 'All picks locked';
   }
 
   renderSpectatorTimer(state);
+  updateSpectatorPicks(state);
+  updateSpectatorBans(state);
 
-  document.querySelectorAll('.pick-card.active').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.bar.active').forEach(b => b.classList.remove('active'));
   if (turn && turn.type === 'pick' && !state.draftEnded) {
     const isBlue = turn.slot[0] === 'B';
     const idx = parseInt(turn.slot.slice(1), 10) - 1;
-    const cards = document.querySelectorAll(
-      `${isBlue ? '#specBluePicks' : '#specRedPicks'} .pick-card`
-    );
-    if (cards[idx]) cards[idx].classList.add('active');
+    document.querySelectorAll(
+      `${isBlue ? '#specBluePicks' : '#specRedPicks'} .bar`
+    )[idx]?.classList.add('active');
   }
-
-  updateSpectatorPicks(state);
-  updateSpectatorBans(state);
 }
 
 function updateSpectatorPicks(state) {
-  document.querySelectorAll('.pick-card .pick-card-bg, .pick-card .pick-card-overlay')
-    .forEach(el => el.remove());
-  document.querySelectorAll('.pick-card .god-name').forEach(name => {
-    name.textContent = 'WAITING...';
-    name.classList.add('empty-pick');
-  });
+  ['B', 'R'].forEach(prefix => {
+    const wrap = prefix === 'B' ? '#specBluePicks' : '#specRedPicks';
+    const bars = document.querySelectorAll(`${wrap} .bar`);
+    for (let i = 0; i < 5; i++) {
+      const bar = bars[i];
+      if (!bar) continue;
+      const god = state.picks?.[`${prefix}${i + 1}`] || null;
+      const por = bar.querySelector('.por');
+      const nm = bar.querySelector('.nm');
 
-  Object.entries(state.picks || {}).forEach(([slot, godName]) => {
-    if (!godName || !/^[BR][1-5]$/.test(slot)) return;
-    const isBlue = slot[0] === 'B';
-    const idx = parseInt(slot.slice(1), 10) - 1;
-    const card = document.querySelectorAll(
-      `${isBlue ? '#specBluePicks' : '#specRedPicks'} .pick-card`
-    )[idx];
-    if (!card) return;
-
-    const content = card.querySelector('.pick-card-content');
-    const nameEl = card.querySelector('.god-name');
-
-    const bg = document.createElement('div');
-    bg.className = 'pick-card-bg';
-    bg.style.backgroundImage = `url('${iconPath(godName)}')`;
-    content.insertBefore(bg, content.firstChild);
-
-    const shade = document.createElement('div');
-    shade.className = 'pick-card-overlay';
-    content.insertBefore(shade, nameEl.parentElement);
-
-    nameEl.textContent = godName.toUpperCase();
-    nameEl.classList.remove('empty-pick');
+      bar.classList.toggle('wait', !god);
+      if (por) por.style.backgroundImage = god ? `url('${iconPath(god)}')` : '';
+      if (nm) nm.textContent = god || 'Open';
+    }
   });
 }
 
 function updateSpectatorBans(state) {
-  document.querySelectorAll('.ban-slot-spec').forEach(slot => (slot.innerHTML = ''));
-
   ['blue', 'red'].forEach(team => {
-    const containerId = team === 'blue' ? '#specBlueBans' : '#specRedBans';
-    const slots = document.querySelectorAll(`${containerId} .ban-slot-spec`);
-    banList(state, team).forEach((godName, index) => {
-      const slot = slots[index];
-      if (!godName || !slot) return;
+    const wrap = team === 'blue' ? '#specBlueBans' : '#specRedBans';
+    const slots = document.querySelectorAll(`${wrap} .ban-slot-spec`);
+    banList(state, team).forEach((god, i) => {
+      const slot = slots[i];
+      if (!slot) return;
+      slot.innerHTML = '';
+      slot.classList.toggle('filled', !!god);
+      if (!god) return;
       const art = document.createElement('div');
       art.className = 'ban-slot-art';
-      art.style.backgroundImage = `url('${iconPath(godName)}')`;
+      art.style.backgroundImage = `url('${iconPath(god)}')`;
       const diag = document.createElement('div');
       diag.className = 'ban-diagonal';
       slot.append(art, diag);
@@ -985,7 +971,7 @@ function updateSpectatorBans(state) {
   });
 }
 
-// ========== Lobby Controls ==========
+// ========== Lobby controls ==========
 function renameSide(side, name) {
   if (isConnected()) window.RT?.updateName(side, name);
 }
@@ -999,8 +985,6 @@ function setupLobbyUI() {
   const blueInput = document.getElementById('blueSideInput');
   const redInput = document.getElementById('redSideInput');
   const readyControls = document.getElementById('readyControls');
-  const blueReadyBtn = document.getElementById('blueReadyBtn');
-  const redReadyBtn = document.getElementById('redReadyBtn');
 
   const enterLobby = (code) => {
     status.textContent = `Lobby ${code}`;
@@ -1014,8 +998,7 @@ function setupLobbyUI() {
   createBtn.onclick = async () => {
     createBtn.disabled = true;
     try {
-      const code = await window.RT.createLobby();
-      enterLobby(code);
+      enterLobby(await window.RT.createLobby());
     } catch (e) {
       alert(e.message || 'Failed to create lobby');
     } finally {
@@ -1032,10 +1015,10 @@ function setupLobbyUI() {
       const state = await window.RT.checkLobbyState(code);
       if (!state) return alert('Lobby not found');
 
+      const me = window.RT.getClientId();
       if (state.owners?.blue && state.owners?.red &&
-          state.owners.blue !== window.RT.getClientId() &&
-          state.owners.red !== window.RT.getClientId()) {
-        if (!confirm('This lobby is full. Join as a spectator?')) return;
+          state.owners.blue !== me && state.owners.red !== me) {
+        if (!confirm('This lobby is full. Watch as a spectator?')) return;
         await window.RT.joinAsSpectator(code);
         showSpectatorMode();
         return;
@@ -1066,20 +1049,19 @@ function setupLobbyUI() {
   blueInput.oninput = () => renameSide('blue', blueInput.value);
   redInput.oninput = () => renameSide('red', redInput.value);
 
-  blueReadyBtn.onclick = () => {
+  document.getElementById('blueReadyBtn').onclick = () => {
     if (mySide() !== 'blue') return;
     window.RT?.setReady('blue', !window.__draftState?.ready?.blue);
   };
-  redReadyBtn.onclick = () => {
+  document.getElementById('redReadyBtn').onclick = () => {
     if (mySide() !== 'red') return;
     window.RT?.setReady('red', !window.__draftState?.ready?.red);
   };
 }
 
 // ==========================================================
-//  The one and only lobby:state handler.
-//  Registering this more than once makes every Firebase update
-//  render the whole board N times over.
+//  The one and only lobby:state handler. Registering this more
+//  than once makes every Firebase update render the board N times.
 // ==========================================================
 window.addEventListener('lobby:state', (e) => {
   const state = e.detail;
@@ -1089,11 +1071,11 @@ window.addEventListener('lobby:state', (e) => {
     draftEnded = true;
     draftResult = state.draftResult;
     stopAllTimers();
-    if (window.__isSpectator) updateSpectatorView(state);
-    else {
-      renderDraftFromState(state);
-      showDraftResult();
-    }
+    if (window.__isSpectator) { updateSpectatorView(state); return; }
+    renderDraftFromState(state);
+    renderPhaseBanner(state);
+    highlightActiveSlot(-1);
+    showDraftResult();
     return;
   }
 
@@ -1102,10 +1084,7 @@ window.addEventListener('lobby:state', (e) => {
     stopAllTimers();
   }
 
-  if (window.__isSpectator) {
-    updateSpectatorView(state);
-    return;
-  }
+  if (window.__isSpectator) { updateSpectatorView(state); return; }
 
   renderDraftFromState(state);
   renderSharedTimer(state);
@@ -1133,9 +1112,10 @@ window.addEventListener('lobby:state', (e) => {
     .forEach(el => el.classList.toggle('slot-locked', !!(mine && mine !== 'red')));
 });
 
-// ========== Initialization ==========
+// ========== Init ==========
 document.addEventListener('DOMContentLoaded', () => {
   loadCharacters();
+  renderEmptyBoard();
 
   document.querySelectorAll('.pick-slot').forEach(slot => {
     slot.addEventListener('dragover', allowDrop);

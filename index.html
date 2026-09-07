@@ -4,261 +4,195 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smite Draft Tool</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=4.2" />
   <link rel="icon" href="Smite Icons/favicon.png" />
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="blue-header-block">
-      <div class="blue-side-label" id="blueSideLabel">Blue/Order</div>
-      <input type="text" class="rename-input-header" id="blueSideInput" placeholder="Rename Blue Side" />
-    </div>
-
-    <div class="logo-container">
-      <img src="Smite Icons/SmiteDraft.png" alt="Smite 2 Logo" class="logo" />
-    </div>
-
-    <div class="red-header-block">
-      <div class="red-side-label" id="redSideLabel">Red/Chaos</div>
-      <input type="text" class="rename-input-header" id="redSideInput" placeholder="Rename Red Side" />
-    </div>
-  </div>
+<div class="page">
 
   <!-- Lobby -->
   <div class="lobby-bar">
-    <button id="createLobbyBtn" class="btn">Create Lobby</button>
-    <input id="joinCodeInput" class="code-input" placeholder="Code (e.g., AB123)" maxlength="6" />
+    <button id="createLobbyBtn" class="btn">Create lobby</button>
+    <input id="joinCodeInput" class="code-input" placeholder="Code" maxlength="6" />
     <button id="joinLobbyBtn" class="btn">Join</button>
     <span id="lobbyStatus" class="lobby-status">Not connected</span>
-    <button id="copyLobbyBtn" class="btn secondary" style="display: none;">Copy Code</button>
+    <button id="copyLobbyBtn" class="btn secondary" style="display:none;">Copy code</button>
   </div>
 
-  <!-- Ready Section -->
-  <div class="ready-wrapper" id="readyControls" style="display: none;">
-    <div class="ready-heading">Ready Up</div>
-    <div id="phaseBanner" class="phase-banner" style="display: none;"></div>
-    <div id="timerDisplay" class="timer-display" style="display: none;"></div>
-    <div class="ready-buttons">
-      <div id="startCountdown" class="start-countdown" style="display: none;">Draft starting in 5...</div>
-      <button id="blueReadyBtn" class="ready-btn blue">Blue: &#10060; Not Ready</button>
-      <button id="redReadyBtn" class="ready-btn red">Red: &#10060; Not Ready</button>
-    </div>
-  </div>
-
-  <!-- Bans — 5 per side -->
-  <div class="bans-container">
-    <div class="bans blue">
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-    </div>
-    <div class="bans red">
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-      <div class="ban-slot"></div>
-    </div>
-  </div>
-
-  <!-- Main Draft Content -->
-  <div class="main-content">
-    <!-- Blue Picks -->
-    <div class="side-container blue-side">
-      <div class="picks blue">
-        <div class="pick-label">B1</div><div class="pick-slot blue-slot"></div>
-        <div class="pick-label">B2</div><div class="pick-slot blue-slot"></div>
-        <div class="pick-label">B3</div><div class="pick-slot blue-slot"></div>
-        <div class="pick-label">B4</div><div class="pick-slot blue-slot"></div>
-        <div class="pick-label">B5</div><div class="pick-slot blue-slot"></div>
+  <!-- Banner: team, keep, team -->
+  <div class="banner bevel">
+    <div class="side a">
+      <div class="sigil"></div>
+      <div class="side-text">
+        <div class="tname" id="blueSideLabel">Blue / Order</div>
+        <input type="text" class="rename" id="blueSideInput" placeholder="Rename Order" />
       </div>
     </div>
 
-    <!-- Middle: Search + Character Cards -->
+    <div class="keep">
+      <div class="keep-phase" id="keepPhase">Waiting</div>
+      <div class="keep-turn" id="keepTurn">Create or join a lobby</div>
+      <div class="keep-n" id="timerDisplay" style="display:none;">--</div>
+      <div class="drain" id="timerDrainWrap" style="display:none;"><i id="timerDrain"></i></div>
+      <div class="ready-row" id="readyControls" style="display:none;">
+        <div class="start-countdown" id="startCountdown" style="display:none;"></div>
+        <button id="blueReadyBtn" class="ready-btn blue">Order not ready</button>
+        <button id="redReadyBtn" class="ready-btn red">Chaos not ready</button>
+      </div>
+    </div>
+
+    <div class="side b">
+      <div class="side-text">
+        <div class="tname" id="redSideLabel">Red / Chaos</div>
+        <input type="text" class="rename" id="redSideInput" placeholder="Rename Chaos" />
+      </div>
+      <div class="sigil"></div>
+    </div>
+  </div>
+
+  <!-- Ban strip: grouped 3 + 2. Red is mirrored in CSS so DOM order stays 0..4. -->
+  <div class="strip">
+    <div class="bl a">
+      <h4>Bans</h4>
+      <div class="bans blue">
+        <div class="bset">
+          <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+        </div>
+        <div class="bset">
+          <div class="ban-slot"></div><div class="ban-slot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mid" id="poolCount"></div>
+
+    <div class="bl b">
+      <div class="bans red">
+        <div class="bset">
+          <div class="ban-slot"></div><div class="ban-slot"></div><div class="ban-slot"></div>
+        </div>
+        <div class="bset">
+          <div class="ban-slot"></div><div class="ban-slot"></div>
+        </div>
+      </div>
+      <h4>Bans</h4>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <div class="board">
+    <div class="side-container blue-side">
+      <div class="roster a">
+        <div class="pick-slot blue-slot"></div>
+        <div class="pick-slot blue-slot"></div>
+        <div class="pick-slot blue-slot"></div>
+        <div class="pick-slot blue-slot"></div>
+        <div class="pick-slot blue-slot"></div>
+      </div>
+    </div>
+
     <div class="middle-section">
-      <div class="search-and-filter">
-        <input type="text" id="searchBox" placeholder="Search for gods..." />
+      <div class="pbar">
+        <input type="text" id="searchBox" class="find sunk" placeholder="Search gods" />
         <div class="filter-icons">
+          <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" data-role="Solo" />
+          <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" data-role="Jungle" />
+          <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" data-role="Mid" />
           <img src="Smite Icons/carry.png" alt="Carry" class="filter-icon" data-role="Carry" />
           <img src="Smite Icons/support.png" alt="Support" class="filter-icon" data-role="Support" />
-          <img src="Smite Icons/mid.png" alt="Mid" class="filter-icon" data-role="Mid" />
-          <img src="Smite Icons/jungle.png" alt="Jungle" class="filter-icon" data-role="Jungle" />
-          <img src="Smite Icons/solo.png" alt="Solo" class="filter-icon" data-role="Solo" />
         </div>
       </div>
-      <div id="character-list" class="scroll-container"></div>
+      <div id="character-list" class="bank sunk"></div>
     </div>
 
-    <!-- Red Picks -->
     <div class="side-container red-side">
-      <div class="picks red">
-        <div class="pick-label">R1</div><div class="pick-slot red-slot"></div>
-        <div class="pick-label">R2</div><div class="pick-slot red-slot"></div>
-        <div class="pick-label">R3</div><div class="pick-slot red-slot"></div>
-        <div class="pick-label">R4</div><div class="pick-slot red-slot"></div>
-        <div class="pick-label">R5</div><div class="pick-slot red-slot"></div>
+      <div class="roster b">
+        <div class="pick-slot red-slot"></div>
+        <div class="pick-slot red-slot"></div>
+        <div class="pick-slot red-slot"></div>
+        <div class="pick-slot red-slot"></div>
+        <div class="pick-slot red-slot"></div>
       </div>
     </div>
   </div>
 
-  <!-- Spectator / broadcast view -->
-  <div class="spectator-overlay" id="spectatorOverlay" style="display: none;">
-    <div class="tournament-header">
-      <div class="team-info blue">
-        <div class="team-score" id="blueScore">0</div>
-        <div class="team-name" id="specBlueTeam">Blue Side</div>
+  <div class="made-by-footer">V4.2 &nbsp;&middot;&nbsp; Made by @TrentUDK</div>
+</div>
+
+<!-- Broadcast overlay -->
+<div class="spectator-overlay" id="spectatorOverlay" style="display:none;">
+  <div class="cast">
+    <div class="banner">
+      <div class="side a">
+        <div class="pip" id="blueScore">0</div>
+        <div class="side-text">
+          <div class="tname" id="specBlueTeam">Blue Side</div>
+          <div class="trec">Order</div>
+        </div>
       </div>
 
-      <div class="tournament-info">
-        <div class="tournament-title" id="tournamentTitle">SMITE DRAFT</div>
-        <div class="match-phase" id="specPhase">Draft Phase</div>
+      <div class="keep">
+        <div class="keep-phase" id="tournamentTitle">Smite Draft</div>
+        <div class="keep-turn" id="specPhase">Draft phase</div>
+        <div class="keep-n" id="specTimer">--</div>
+        <div class="keep-turn" id="specTurn">Waiting</div>
       </div>
 
-      <div class="team-info red">
-        <div class="team-name" id="specRedTeam">Red Side</div>
-        <div class="team-score" id="redScore">0</div>
+      <div class="side b">
+        <div class="side-text">
+          <div class="tname" id="specRedTeam">Red Side</div>
+          <div class="trec">Chaos</div>
+        </div>
+        <div class="pip" id="redScore">0</div>
       </div>
     </div>
 
-    <div class="spectator-draft">
-      <!-- Bans — 5 per side -->
-      <div class="bans-section">
-        <div class="ban-team blue">
-          <div class="ban-team-label">Blue Bans</div>
-          <div class="ban-grid" id="specBlueBans">
-            <div class="ban-slot-spec blue"></div>
-            <div class="ban-slot-spec blue"></div>
-            <div class="ban-slot-spec blue"></div>
-            <div class="ban-slot-spec blue"></div>
-            <div class="ban-slot-spec blue"></div>
-          </div>
-        </div>
+    <div class="cast-body">
+      <div class="bars a" id="specBluePicks">
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">B1</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">B2</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">B3</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">B4</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">B5</div></div>
+      </div>
 
-        <div class="ban-team red">
-          <div class="ban-team-label">Red Bans</div>
-          <div class="ban-grid" id="specRedBans">
-            <div class="ban-slot-spec red"></div>
-            <div class="ban-slot-spec red"></div>
-            <div class="ban-slot-spec red"></div>
-            <div class="ban-slot-spec red"></div>
-            <div class="ban-slot-spec red"></div>
-          </div>
+      <div class="cast-mid">
+        <div class="cast-bans" id="specBlueBans">
+          <div class="ban-slot-spec"></div><div class="ban-slot-spec"></div><div class="ban-slot-spec"></div>
+          <div class="ban-slot-spec"></div><div class="ban-slot-spec"></div>
+        </div>
+        <div class="cast-bans" id="specRedBans">
+          <div class="ban-slot-spec"></div><div class="ban-slot-spec"></div><div class="ban-slot-spec"></div>
+          <div class="ban-slot-spec"></div><div class="ban-slot-spec"></div>
         </div>
       </div>
 
-      <!-- Picks -->
-      <div class="picks-section">
-        <div class="team-picks blue">
-          <div class="team-picks-label">Blue Picks</div>
-          <div class="picks-grid" id="specBluePicks">
-            <div class="pick-card blue">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">B1</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card blue">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">B2</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card blue">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">B3</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card blue">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">B4</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card blue">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">B5</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="timer-section">
-          <div class="timer-label">Turn Timer</div>
-          <div class="timer-value" id="specTimer">--</div>
-          <div class="phase-indicator" id="specTurn">Waiting</div>
-        </div>
-
-        <div class="team-picks red">
-          <div class="team-picks-label">Red Picks</div>
-          <div class="picks-grid" id="specRedPicks">
-            <div class="pick-card red">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">R1</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card red">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">R2</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card red">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">R3</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card red">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">R4</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-            <div class="pick-card red">
-              <div class="pick-card-content">
-                <div class="pick-card-info">
-                  <div class="pick-number">R5</div>
-                  <div class="god-name empty-pick">WAITING...</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="bars b" id="specRedPicks">
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">R1</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">R2</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">R3</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">R4</div></div>
+        <div class="bar wait"><div class="por"></div>
+          <div class="txt"><div class="nm">Open</div></div><div class="idx">R5</div></div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Footer -->
-  <div class="made-by-footer">V3.1 Made by @TrentUDK</div>
-
-  <!-- Scripts: app.js is a classic script and runs first, publishing the
-       turn table; realtime.js is a module and is deferred until after it. -->
-  <script src="app.js?v=3.1"></script>
-  <script type="module" src="realtime.js?v=3.1"></script>
+<script src="app.js?v=4.2"></script>
+<script type="module" src="realtime.js?v=4.2"></script>
 </body>
 </html>
