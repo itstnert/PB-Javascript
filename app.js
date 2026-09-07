@@ -179,7 +179,7 @@ const TURN_ORDER = [
 
 const BANS_PER_SIDE = 5;
 const TURN_DURATION = 25;
-const BUILD = 'V4.2';
+const BUILD = 'V4.3';
 
 // realtime.js validates against the same table. app.js is a classic script
 // and runs before the deferred module, so this is set in time.
@@ -197,7 +197,7 @@ const OPPONENT_GRACE_MS = 4000;
 const TEAM_LABEL = { blue: 'Order', red: 'Chaos' };
 
 // ========== Globals ==========
-let currentRoleFilter = null;
+let activeRoles = new Set();
 let timerInterval = null;
 let spectatorTimerInterval = null;
 let readyCountdown = null;
@@ -299,29 +299,46 @@ function loadCharacters() {
   filterGods();
 }
 
+// Prefix matching, not substring. Typing "x" should offer Xbalanque and
+// Xing Tian, not Ix Chel. Any word in the name can be the one that matches,
+// so "chel" still finds Ix Chel and "wukong" still finds Sun Wukong.
+function matchesQuery(name, query) {
+  if (!query) return true;
+  const lower = name.toLowerCase();
+  if (lower.startsWith(query)) return true;                 // "sun w" -> Sun Wukong
+  return lower.split(/[\s'\-]+/).some(word => word.startsWith(query));
+}
+
 function filterGods() {
-  const text = (document.getElementById('searchBox')?.value || '').toLowerCase();
+  const text = (document.getElementById('searchBox')?.value || '').trim().toLowerCase();
   const byName = new Map(characters.map(c => [c.name.toLowerCase(), c]));
+  const roles = [...activeRoles];
   let shown = 0;
 
   document.querySelectorAll('.character-card').forEach(card => {
-    const name = card.querySelector('.character-name').innerText.toLowerCase();
-    const char = byName.get(name);
-    const roleOk = currentRoleFilter ? !!char?.roles.includes(currentRoleFilter) : true;
-    const visible = name.includes(text) && roleOk;
+    const name = card.querySelector('.character-name').innerText;
+    const char = byName.get(name.toLowerCase());
+    // No roles selected means no role constraint. Several selected is an OR:
+    // a god shows if it plays any of them.
+    const roleOk = roles.length === 0 || roles.some(r => !!char?.roles.includes(r));
+    const visible = matchesQuery(name, text) && roleOk;
     card.style.display = visible ? '' : 'none';
     if (visible) shown++;
   });
 
   const gone = document.querySelectorAll('.character-image.greyed-out').length;
   const count = document.getElementById('poolCount');
-  if (count) count.textContent = `${gone} off the board \u00b7 ${shown} shown`;
+  if (count) {
+    const filtered = (text || roles.length) ? ` \u00b7 ${shown} shown` : '';
+    count.textContent = `${gone} off the board${filtered}`;
+  }
 }
 
 function filterByRole(role) {
-  currentRoleFilter = currentRoleFilter === role ? null : role;
+  if (activeRoles.has(role)) activeRoles.delete(role);
+  else activeRoles.add(role);
   document.querySelectorAll('.filter-icon').forEach(icon => {
-    icon.classList.toggle('filter-active', icon.dataset.role === currentRoleFilter);
+    icon.classList.toggle('filter-active', activeRoles.has(icon.dataset.role));
   });
   filterGods();
 }
