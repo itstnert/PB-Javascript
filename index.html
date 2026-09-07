@@ -38,6 +38,7 @@
   <!-- Ready Section -->
   <div class="ready-wrapper" id="readyControls" style="display: none;">
     <div class="ready-heading">Ready Up</div>
+    <div id="phaseBanner" class="phase-banner" style="display: none;"></div>
     <div id="timerDisplay" class="timer-display" style="display: none;"></div>
     <div class="ready-buttons">
       <div id="startCountdown" class="start-countdown" style="display: none;">Draft starting in 5...</div>
@@ -257,7 +258,7 @@
 
   <!-- Scripts: app.js is a classic script and runs first, publishing the
        turn table; realtime.js is a module and is deferred until after it. -->
-  <script src="app.js"></script>
-  <script type="module" src="realtime.js"></script>
+  <script src="app.js?v=3.1"></script>
+  <script type="module" src="realtime.js?v=3.1"></script>
 </body>
 </html>

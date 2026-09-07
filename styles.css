@@ -1162,3 +1162,24 @@ body::before {
   filter: brightness(1.15);
   box-shadow: 0 6px 20px rgba(201, 160, 64, .6);
 }
+
+/* Current phase, shown above the clock. */
+.phase-banner {
+  padding: 8px 18px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(20, 24, 36, .9), rgba(20, 24, 36, .7));
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: center;
+}
+.phase-banner.blue { border-color: rgba(59, 130, 246, .45); }
+.phase-banner.red  { border-color: rgba(239, 68, 68, .45); }
+.phase-banner.is-mine {
+  color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(201, 160, 64, .25);
+}

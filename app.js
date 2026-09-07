@@ -179,6 +179,15 @@ const TURN_ORDER = [
 
 const BANS_PER_SIDE = 5;
 const TURN_DURATION = 25;
+const BUILD = 'V3.1';
+
+// Printed on load so you can confirm which build the browser actually
+// served. A cached app.js silently running an old turn table is very hard
+// to spot from the UI alone.
+console.log(
+  `%cSmite Draft ${BUILD}%c  ${TURN_ORDER.length} turns \u00b7 ${BANS_PER_SIDE} bans/side \u00b7 split ban phases`,
+  'font-weight:bold;color:#c9a040', 'color:#9ca2b8'
+);
 
 // realtime.js reads this so both files validate against the same table.
 // app.js is a classic script and runs before the deferred module, so this
@@ -494,6 +503,30 @@ function renderSpectatorTimer(state) {
   clearInterval(spectatorTimerInterval);
   update();
   spectatorTimerInterval = setInterval(update, 200);
+}
+
+// Names the current phase and whose turn it is, right above the clock.
+// Without this the only cue is a gold outline on one slot, which is easy
+// to misread when the phases interleave.
+function renderPhaseBanner(state) {
+  const banner = document.getElementById('phaseBanner');
+  if (!banner) return;
+
+  const turn = TURN_ORDER[state.currentTurnIndex || 0];
+  if (!turn || draftEnded) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  const mine = mySide();
+  const label = turn.team === 'blue' ? 'Blue' : 'Red';
+  banner.textContent = turn.team === mine
+    ? `${turn.phase} \u2014 your ${turn.type}`
+    : `${turn.phase} \u2014 ${label} to ${turn.type}`;
+  banner.classList.toggle('is-mine', turn.team === mine);
+  banner.classList.toggle('blue', turn.team === 'blue');
+  banner.classList.toggle('red', turn.team === 'red');
+  banner.style.display = 'block';
 }
 
 function stopAllTimers() {
@@ -1076,6 +1109,7 @@ window.addEventListener('lobby:state', (e) => {
 
   renderDraftFromState(state);
   renderSharedTimer(state);
+  renderPhaseBanner(state);
   updateSideOwnershipIndicators();
   updateReadyButtons(state);
   highlightActiveSlot(state.currentTurnIndex || 0);
